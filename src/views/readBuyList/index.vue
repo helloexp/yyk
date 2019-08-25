@@ -3,7 +3,7 @@
     <div class="wrapper">
       <swiper :options="swiperOption">
         <swiper-slide v-for="item of bannerList" :key="item.id">
-          <img :src="item.img_url" class="swiper-img" />
+          <img v-lazy="item.img_url" class="swiper-img" />
         </swiper-slide>
         <div class="swiper-pagination" slot="pagination"></div>
       </swiper>
@@ -17,14 +17,14 @@
     </div>
     <div class="moiveList">
       <div class="moiveTab" v-for="(item,index) in readBuyList" :key="index" :class="index == 0 ? 'firstTba' :''" @click="jumpDetail(item.video)">
-        <img :src="item.cover" alt class="coverImg" />
+        <img v-lazy="item.cover" alt class="coverImg" />
         <div class="introsBox">
           <p class="moiveDate">{{item.create_time | handleTime}}</p>
           <p class="moiveIntros">{{item.title}}</p>
           <p class="bannelBox">
             <span class="contrlbox">
               <span class="look"></span>
-              <span class="count">{{item.video_wnum | handleReadCount}}</span>
+              <span class="count">{{ item.video_wnum | handleReadCount }}</span>
             </span>
             <span class="contrlbox">
               <span class="zan"></span>
@@ -39,7 +39,7 @@
 </template>
 
 <script>
-import dayjs from 'dayjs';
+import dayjs from "dayjs";
 import Loading from "../../components/LoadMore.vue";
 export default {
   name: "readBuyList",

@@ -91,7 +91,7 @@
         <div class="scrollWrap moreContent">
           <div class="scrollBox moreBox">
             <span class="scorllItem" v-for="(item, index) in VDList" :key="index">
-              <img :src="item.cover" alt="" class="moreImg">
+              <img v-lazy="item.cover" alt="" class="moreImg">
               <p class="moreTitle">{{item.title}}</p>
               <p class="moreIntros">{{item.subtitle}}</p>
             </span>
@@ -131,7 +131,8 @@ export default {
         isLike: false,
         watchC: 0,
         likeC: 0
-      }
+      },
+      isWifi: false
     };
   },
   components: {},
@@ -146,10 +147,11 @@ export default {
     this.vedioId = this.$route.params.vid;
   },
   mounted() {
-    // 获取原生返回的网络状态，根据网络状态控制视频播放
+    // 初始化视频组件
     this.initVideo();
+    // 获取原生返回的网络状态，根据网络状态控制视频播放
+    // this.startVedio();
     this.getReadBuyDetail();
-    console.log(this.vedioId);
   },
   methods: {
     // 视频组件
@@ -171,11 +173,11 @@ export default {
       try {
         let params = {
           vid: that.vedioId,
-          code: ''
+          code: ""
         };
         let res = await this.$api.readBuy.readBuyDetail(params);
-        if(res && res.result == 0){
-          if(res.same_list && res.same_list.length > 0) {
+        if (res && res.result == 0) {
+          if (res.same_list && res.same_list.length > 0) {
             that.sameVD = res.same_list;
           }
           if (res.video_list && res.video_list.length > 0) {
@@ -185,14 +187,14 @@ export default {
             that.moreVD = res.more_list;
           }
           that.otherInfo.isLike = true;
-          that.otherInfo['likeC'] = res.video_lnum;
-          that.otherInfo['watchC'] = res.video_wnum;
+          that.otherInfo["likeC"] = res.video_lnum;
+          that.otherInfo["watchC"] = res.video_wnum;
         }
-      }catch(e) {
+      } catch (e) {
         console.log(e);
       }
     },
-    startVedio(){
+    startVedio() {
       this.player.play();
     }
   }
@@ -204,7 +206,7 @@ export default {
 @mgheart: "../../assets/images/redheart.png";
 @mgheartblack: "../../assets/images/blackheart.png";
 @mgshare: "../../assets/images/share.png";
-@mgShop:'../../assets/images/cart.png';
+@mgShop: "../../assets/images/cart.png";
 
 .vedioBox {
   position: fixed;
@@ -213,17 +215,17 @@ export default {
   background: #fff;
   z-index: 10;
   .titleBox {
-    padding: 24px 22px 10px 25px;/*no*/
+    padding: 24px 22px 10px 25px; /*no*/
     .titleRow {
       display: flex;
       align-content: center;
       justify-content: space-between;
       .title {
-        width: 225px;/*no*/
-        font-size: 18px;/*no*/
+        width: 225px; /*no*/
+        font-size: 18px; /*no*/
         overflow: hidden;
-        height: 19px;/*no*/
-        line-height: 19px;/*no*/
+        height: 19px; /*no*/
+        line-height: 19px; /*no*/
         font-weight: bold;
       }
       .controlPannel {
@@ -232,10 +234,10 @@ export default {
         align-items: center;
         .zan {
           width: 15px; /*no*/
-          height: 15px;/*no*/
+          height: 15px; /*no*/
           background: url(@mgheart) no-repeat;
         }
-        .notLike{
+        .notLike {
           background: url(@mgheartblack) no-repeat;
         }
         .zanCount {
@@ -281,18 +283,18 @@ export default {
     font-size: 16px;
   }
   .scrollWrap {
-      margin-top: 15px;
-      width: 100%;
-      height: 186px;
-      overflow-x: hidden;
+    margin-top: 15px;
+    width: 100%;
+    // height: 186px;
+    overflow-x: hidden;
+    overflow-y: hidden;
+    background: #fff;
+    .scrollBox {
+      width: auto;
+      white-space: nowrap;
+      overflow-x: auto;
       overflow-y: hidden;
-      background: #fff;
-      .scrollBox {
-        width: auto;
-        white-space: nowrap;
-        overflow-x: auto;
-        overflow-y: hidden;
-      }
+    }
   }
   .asVedio {
     .asContent {
@@ -308,12 +310,12 @@ export default {
           .saleOutPop {
             display: none;
             background: #000000;
-            opacity: .5;
+            opacity: 0.5;
             color: white;
             width: 125px;
             height: 125px;
             position: absolute;
-            top:0;
+            top: 0;
             left: 0;
             text-align: center;
             line-height: 125px;
@@ -347,7 +349,7 @@ export default {
               line-height: 14px;
               padding-top: 3px;
             }
-            .findSame{
+            .findSame {
               height: 28x;
               background: #fa0000;
               color: #fff;
@@ -376,16 +378,16 @@ export default {
   .moreVedio {
     margin-top: 22px; /*no*/
     .moreContent {
-      height: 112px;
+      // height: 112px;
       .moreBox {
-        height: 114px;
+        // height: 114px;
         .scorllItem {
-          height: 112px;
+          // height: 112px;
           width: 100px;
           margin-right: 10px;
           font-size: 12px;
           .moreImg {
-            height: 66px;
+            // height: 66px;
             width: 107px;
           }
           .moreTitle {
