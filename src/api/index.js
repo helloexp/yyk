@@ -1,47 +1,47 @@
-import axios from './axios'
+import axios from "./axios";
 
-let instance = axios()
+let instance = axios();
 
 export default {
   get(url, params, headers) {
-    let options = {}
+    let options = {};
 
     if (params) {
-      options.params = params
+      options.params = params;
     }
     if (headers) {
-      options.headers = headers
+      options.headers = headers;
     }
-    return instance.get(url, options)
+    return instance.get(url, options);
   },
   post(url, params, headers) {
-    let options = {}
+    let options = {};
 
     if (params) {
-      options.params = params
+      options.params = params;
     }
     if (headers) {
-      options.headers = headers
+      options.headers = headers;
     }
-    return instance.post(url, params, {headers})
+    return instance.post(url, params, { headers });
   },
   put(url, params, headers) {
-    let options = {}
+    let options = {};
 
     if (headers) {
-      options.headers = headers
+      options.headers = headers;
     }
-    return instance.put(url, params, options)
+    return instance.put(url, params, options);
   },
   delete(url, params, headers) {
-    let options = {}
+    let options = {};
 
     if (params) {
-      options.params = params
+      options.params = params;
     }
     if (headers) {
-      options.headers = headers
+      options.headers = headers;
     }
-    return instance.delete(url, options)
+    return instance.delete(url, options);
   }
-}
+};

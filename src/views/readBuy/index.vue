@@ -349,7 +349,7 @@ export default {
             }
             .findSame{
               height: 28x;
-              background: #FA0000;
+              background: #fa0000;
               color: #fff;
               text-align: center;
               padding: 4px 4px;
@@ -365,7 +365,7 @@ export default {
           }
         }
         .saleOut {
-          color:#9b9b9b;
+          color: #9b9b9b;
           .saleOutPop {
             display: block;
           }

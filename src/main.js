@@ -26,6 +26,15 @@ Vue.config.productionTip = false;
 import api from "./api/install";
 Vue.use(api);
 
+import VueLazyload from "vue-lazyload";
+
+Vue.use(VueLazyload, {
+  preLoad: 1.3,
+  error: "dist/error.png",
+  loading: "dist/loading.gif",
+  attempt: 1
+});
+
 router.beforeEach((to, from, next) => {
   /* 路由发生变化修改页面title */
   if (to.meta.title) {
