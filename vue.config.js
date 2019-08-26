@@ -12,6 +12,14 @@ module.exports = {
           '^/api': '' // rewrite path
         }
       },
+      '/imgapi': {
+        target: 'https://pictest.uniqlo.cn/uniqlo', // target host
+        ws: true, // proxy websockets 
+        changeOrigin: true, // needed for virtual hosted sites
+        pathRewrite: {
+          '^/imgapi': '' // rewrite path
+        }
+      },
     }
   },
   configureWebpack: {

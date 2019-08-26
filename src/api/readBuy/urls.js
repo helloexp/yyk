@@ -1,7 +1,8 @@
-import baseUrl from '../baseUrl'
+import urls from '../baseUrl'
+console.log(urls)
 export default {
-  readBuyList: baseUrl + '/api/watch/videoList',
-  readBuyDetail: baseUrl + '/api/watch/videoDetail',
-  readBuyBanner: baseUrl + '/api/watch/banner',
-  readBuyLike: baseUrl + '/api/watch/like'
+  readBuyList: urls.baseUrl + '/api/watch/videoList',
+  readBuyDetail: urls.baseUrl + '/api/watch/videoDetail',
+  readBuyBanner: urls.baseUrl + '/api/watch/banner',
+  readBuyLike: urls.baseUrl + '/api/watch/like'
 }

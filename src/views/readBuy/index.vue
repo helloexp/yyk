@@ -43,19 +43,19 @@
         <p class="classTitle">视频同款</p>
         <div class="scrollWrap asContent">
           <div class="scrollBox asBox">
-            <div class="scorllItem saleOut">
+            <div class="scorllItem saleOut" v-for="(item, idx) in sameVD" :key="idx">
               <div class="saleOutPop">
                 售罄
               </div>
-              <img src="" class="classImg">
-              <p class="classTitle">棉质休闲圆领T恤(长袖)</p>
-              <p class="classId">12312</p>
+              <img :src="item.mfImgUrl" class="classImg">
+              <p class="classTitle">{{item.keyword}}</p>
+              <p class="classId">{{item.pnum}}</p>
               <p class="classPrice">
                 <span class="yprice">￥12.00</span>
                 <span class="findSame">找相似</span>
               </p>
             </div>
-            <span class="scorllItem">
+            <!-- <span class="scorllItem">
               <div class="saleOutPop">
                 售罄
               </div>
@@ -90,7 +90,7 @@
                 <span class="yprice">￥12.00</span>
                 <span class="joinShop"></span>
               </p>
-            </span>
+            </span> -->
           </div>
         </div>
       </div>
@@ -152,7 +152,8 @@ export default {
         clickCount: 0,
         canClick: true
       },
-
+      imgBaseUrl: '',
+      imgUrlParams: ''
     };
   },
   components: {},
@@ -170,11 +171,14 @@ export default {
     console.log(this.$route)
   },
   mounted() {
+    // 不同环境下的图片域名
+    this.imgBaseUrl = process.env.VUE_APP_IMGBASE;
+    this.getImgParams();
     // 初始化视频组件
     this.initVideo();
     // 获取原生返回的网络状态，根据网络状态控制视频播放
     // this.startVedio();
-    console.log(process.env.NODE_ENV,'0000');
+    console.log(process.env,'0000');
     
     this.getReadBuyDetail();
     // this.$loading(true);
@@ -205,6 +209,10 @@ export default {
         if (res && res.result == 0) {
           that.allDetailData = res;
           if (res.same_list && res.same_list.length > 0) {
+            res.same_list.forEach(item => {
+              item['mfImgUrl'] = that.imgBaseUrl + that.imgUrlParams + item.goods_id + "/main/first/" + "1000/" + item.color_no + '.jpg';
+              item['skuImgUrl'] = that.imgBaseUrl + that.imgUrlParams + item.goods_id + "/sku/" + "1000/" + item.color_no + '.jpg';
+            });
             that.sameVD = res.same_list;
           }
           if (res.video_list && res.video_list.length > 0) {
@@ -253,6 +261,17 @@ export default {
       }else {
         // 点赞
         that.otherInfo.isLike = true;
+      }
+    },
+    getImgParams() {
+      let that = this;
+      try{
+        this.$api.imgUrlParams.imgUrlParams().then((data) => {
+          console.log(data)
+          that.imgUrlParams = data.picturePath;
+        });
+      } catch(e) {
+        console.log(e);
       }
     }
   }

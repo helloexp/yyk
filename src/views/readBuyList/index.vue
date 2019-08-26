@@ -3,7 +3,7 @@
     <div class="wrapper">
       <swiper :options="swiperOption">
         <swiper-slide v-for="item of bannerList" :key="item.id">
-          <img v-lazy="item.img_url" class="swiper-img" />
+          <img v-lazy="item.img_url" class="swiper-img" @click="bannerJump(item.jump_url)" />
         </swiper-slide>
         <div class="swiper-pagination" slot="pagination"></div>
       </swiper>
@@ -19,8 +19,8 @@
       <div class="moiveTab" v-for="(item,index) in readBuyList" :key="index" :class="index == 0 ? 'firstTba' :''" @click="jumpDetail(item.vid, item.video)">
         <img v-lazy="item.cover" alt class="coverImg" />
         <div class="introsBox">
-          <p class="moiveDate">{{item.create_time | handleTime}}</p>
-          <p class="moiveIntros">{{item.title}}</p>
+          <p class="moiveDate">{{ item.create_time | handleTime }}</p>
+          <p class="moiveIntros">{{ item.title }}</p>
           <p class="bannelBox">
             <span class="contrlbox">
               <span class="look"></span>
@@ -28,7 +28,7 @@
             </span>
             <span class="contrlbox">
               <span class="zan"></span>
-              <span class="count">{{item.video_lnum}}</span>
+              <span class="count">{{Number(item.video_lnum)}}</span>
             </span>
           </p>
         </div>
@@ -100,7 +100,7 @@ export default {
     async getBannerData() {
       try{
         let res = await this.$api.readBuy.readBuyBanner();
-        if(res && res.result == 0 && res.list.length){
+        if(res && res.result == 0 && res.list.length) {
           this.bannerList = res.list;
         }
       }catch(e){
@@ -116,6 +116,16 @@ export default {
     },
     jumpDetail(vid, vedio) {
       this.$router.push({ path: "/readBuyDetail?vid=" + vid + "&vedio=" + vedio });
+    },
+    bannerJump(jumpurl) {
+      if(jumpurl) {
+        let strArr = jumpurl.split('?');
+        if(strArr.length >= 2) {
+          strArr[2].split('&');
+        }
+        console.log(jumpurl.split('?'))
+        // jumpurl.split('?');
+      }
     }
   },
   watch:{
@@ -160,7 +170,6 @@ export default {
   overflow: hidden;
   width: 100%;
   // height: 220px;
-  background: @backGrayColor;
   .swiper-img {
     // height: 220px;
     width: 100%;
