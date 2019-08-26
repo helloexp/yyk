@@ -4,30 +4,38 @@
       <div id="container"></div>
       <div class="titleBox">
         <div class="titleRow">
-          <p class="title">倪妮教你搭配美学新品</p>
-          <p class="controlPannel">
-            <span class="zan" :class="{'notLike':otherInfo.isLike}"></span>
-            <span class="zanCount">{{otherInfo.likeC}}</span>
+          <p class="title">{{ allDetailData.title }}</p>
+          
+        </div>
+        <div class="readRow">
+          <div class="controlPannel">
+            <div class="zanBox" @click="likeVedio()">
+              <img v-if="otherInfo.isLike" src="@@/images/redheart.png">
+              <img v-else src="@@/images/blackheart.png">
+              <!-- <span class="zan" :class="{'notLike':otherInfo.isLike}"></span> -->
+              <span class="zanCount">{{otherInfo.likeC}}</span>
+            </div>
             <span class="line"></span>
             <span class="share"></span>
+          </div>
+          <p class="rightRead">
+            <!-- <span class="read"></span> -->
+            <img src="@@/images/look.png" alt="">
+            <span class="readCount">{{ otherInfo.watchC }}</span>
           </p>
         </div>
-        <p class="readRow">
-          <span class="read"></span>
-          <span class="readCount">{{ otherInfo.watchC }}</span>
-        </p>
       </div>
     </div>
     <div class="vedioPop" v-if="isShowVedioPop">
       <p class="tuijian">为您推荐</p>
-      <div class="midContent">
-        <img src="" alt="" class="leftImg">
+      <img class="midContent" v-lazy="allDetailData.cover">
+        <!-- <img src="" class="leftImg">
         <div class="rightIntros">
           <p class="rightIntroTitle">棉质休闲圆领T恤(长袖)</p>
           <p class="rightIntroId">419974</p>
           <p class="rightIntroPric">￥99.00</p>
-        </div>
-      </div>
+        </div> -->
+      <!-- </div> -->
       <div class="refresh" @click="startVedio"></div>
     </div>
     <div class="vedioIntros">
@@ -39,7 +47,7 @@
               <div class="saleOutPop">
                 售罄
               </div>
-              <img src="" alt="" class="classImg">
+              <img src="" class="classImg">
               <p class="classTitle">棉质休闲圆领T恤(长袖)</p>
               <p class="classId">12312</p>
               <p class="classPrice">
@@ -51,7 +59,7 @@
               <div class="saleOutPop">
                 售罄
               </div>
-              <img src="" alt="" class="classImg">
+              <img src="" class="classImg">
               <p class="classTitle">棉质休闲圆领T恤(长袖)</p>
               <p class="classId">12312</p>
               <p class="classPrice">
@@ -63,7 +71,7 @@
                <div class="saleOutPop">
                 售罄
               </div>
-              <img src="" alt="" class="classImg">
+              <img src="" class="classImg">
               <p class="classTitle">棉质休闲圆领T恤(长袖)</p>
               <p class="classId">12312</p>
               <p class="classPrice">
@@ -75,7 +83,7 @@
               <div class="saleOutPop">
                 售罄
               </div>
-              <img src="" alt="" class="classImg">
+              <img src="" class="classImg">
               <p class="classTitle">棉质休闲圆领T恤(长袖)</p>
               <p class="classId">12312</p>
               <p class="classPrice">
@@ -86,27 +94,32 @@
           </div>
         </div>
       </div>
-      <div class="moreVedio" v-if="VDList.length">
+      <div class="moreVedio" v-if="VDList.length" :class="{ 'firstContent': !sameVD.length }">
         <p class="classTitle">更多精彩视频</p>
         <div class="scrollWrap moreContent">
           <div class="scrollBox moreBox">
             <span class="scorllItem" v-for="(item, index) in VDList" :key="index">
-              <img v-lazy="item.cover" alt="" class="moreImg">
+              <img v-lazy="item.cover" class="moreImg">
               <p class="moreTitle">{{item.title}}</p>
               <p class="moreIntros">{{item.subtitle}}</p>
             </span>
           </div>
         </div>
       </div>
-      <div class="moreNew" v-if="moreVD.length">
+      <div class="moreNew" v-if="moreVD.length" :class="{'firstContent': !sameVD.length && !VDList.length}">
         <p class="classTitle">更多新品</p>
         <div class="newBox">
-          <div class="oneImg">
-            <img src="" alt="">
-          </div>
-          <div class="twoImg">
-            <img src="" alt="">
-            <img src="" alt="">
+          <div v-for="(item, idx) in moreVD" :key="idx">
+            <div class="oneImg" v-if="item.type == 1">
+              <img  v-for="(_item, _idx) in item.img_list" :key="_idx" v-lazy="_item.img_url"> 
+            </div>
+            <div class="twoImg" v-else :class="{ 'lastImg': idx == moreVD.length - 1 }">
+                <div class="img" v-for="(_item, _idx) in item.img_list" :key="_idx" 
+                    :style="{background:'url(' + _item.img_url + ') no-repeat',
+                    'background-size':'cover',
+                    'background-position': 'center 0'}"
+                ></div>
+            </div>
           </div>
         </div>
       </div>
@@ -124,6 +137,7 @@ export default {
       isShowVedioPop: false,
       vedioStatus: -1,
       vedioId: "",
+      vid: "",
       moreVD: [],
       sameVD: [],
       VDList: [],
@@ -132,7 +146,13 @@ export default {
         watchC: 0,
         likeC: 0
       },
-      isWifi: false
+      allDetailData: {},
+      isWifi: false,
+      zanCtrl: {
+        clickCount: 0,
+        canClick: true
+      },
+
     };
   },
   components: {},
@@ -144,14 +164,20 @@ export default {
     }
   },
   created() {
-    this.vedioId = this.$route.params.vid;
+    // this.$loading(true)
+    this.vedioId = this.$route.query.vedio;
+    this.vid = this.$route.query.vid;
+    console.log(this.$route)
   },
   mounted() {
     // 初始化视频组件
     this.initVideo();
     // 获取原生返回的网络状态，根据网络状态控制视频播放
     // this.startVedio();
+    console.log(process.env.NODE_ENV,'0000');
+    
     this.getReadBuyDetail();
+    // this.$loading(true);
   },
   methods: {
     // 视频组件
@@ -172,11 +198,12 @@ export default {
       let that = this;
       try {
         let params = {
-          vid: that.vedioId,
+          vid: that.vid,
           code: ""
         };
         let res = await this.$api.readBuy.readBuyDetail(params);
         if (res && res.result == 0) {
+          that.allDetailData = res;
           if (res.same_list && res.same_list.length > 0) {
             that.sameVD = res.same_list;
           }
@@ -186,7 +213,8 @@ export default {
           if (res.more_list && res.more_list.length > 0) {
             that.moreVD = res.more_list;
           }
-          that.otherInfo.isLike = true;
+          console.log(res.video_lnum);
+          that.otherInfo.isLike = Number(res.like);
           that.otherInfo["likeC"] = res.video_lnum;
           that.otherInfo["watchC"] = res.video_wnum;
         }
@@ -196,6 +224,36 @@ export default {
     },
     startVedio() {
       this.player.play();
+    },
+    likeVedio() {
+      // this.$toast(this.vedioId);
+      let that = this;
+      // 判断是否登录
+
+      // 一次没有点时开始计时，两秒复位一次，超过两次说明，两秒内点击次数过多，直接return
+      if(!that.zanCtrl.canClick) return;
+      if(!that.zanCtrl.clickCount) {
+        setTimeout(() => {
+          that.zanCtrl.clickCount = 0;
+          that.zanCtrl.canClick = true;
+        }, 2000)
+      }
+      that.zanCtrl.clickCount ++ ;
+      if(that.zanCtrl.clickCount > 2) {
+        that.$toast('点赞过于频繁');
+        that.zanCtrl.canClick = false;
+        return;
+      }
+
+
+      if(that.otherInfo.isLike) {
+        // 请求接口取消点赞
+
+        that.otherInfo.isLike = false;
+      }else {
+        // 点赞
+        that.otherInfo.isLike = true;
+      }
     }
   }
 };
@@ -215,34 +273,45 @@ export default {
   background: #fff;
   z-index: 10;
   .titleBox {
-    padding: 24px 22px 10px 25px; /*no*/
+    padding: 18px 22px 10px 25px; /*no*/
     .titleRow {
       display: flex;
       align-content: center;
       justify-content: space-between;
       .title {
-        width: 225px; /*no*/
+        width: 100%; /*no*/
         font-size: 18px; /*no*/
         overflow: hidden;
         height: 19px; /*no*/
         line-height: 19px; /*no*/
         font-weight: bold;
       }
+      
+    }
+    .readRow {
+      margin-top: 15px; /*no*/
+      height: 19px; /*no*/
+      line-height: 18px; /*no*/
+      display: flex;
+      justify-content: space-between;
       .controlPannel {
         display: flex;
-        align-content: center;
         align-items: center;
-        .zan {
-          width: 15px; /*no*/
-          height: 15px; /*no*/
-          background: url(@mgheart) no-repeat;
-        }
-        .notLike {
-          background: url(@mgheartblack) no-repeat;
-        }
-        .zanCount {
-          font-size: 12px; /*no*/
-          margin-left: 3px; /*no*/
+        .zanBox{
+          display: flex;
+          align-items: center;
+          .zan {
+            width: 20px; /*no*/
+            height: 15px; /*no*/
+            background: url(@mgheart) no-repeat;
+          }
+          .zanCount {
+            font-size: 12px; /*no*/
+            margin-left: 3px; /*no*/
+          }
+          .notLike {
+            background: url(@mgheartblack) no-repeat;
+          }
         }
         .line {
           width: 1px; /*no*/
@@ -258,27 +327,26 @@ export default {
           margin-left: 4px; /*no*/
         }
       }
-    }
-    .readRow {
-      margin-top: 8px; /*no*/
-      height: 18px; /*no*/
-      line-height: 18px; /*no*/
-      display: flex;
-      .read {
+      .rightRead{
+        display: flex;
+        .read {
         width: 18px; /*no*/
         height: 15px; /*no*/
         background: url(@mgLook) no-repeat;
-      }
-      .readCount {
-        font-size: 12px; /*no*/
-        color: #999;
+        }
+        .readCount {
+          font-size: 12px; /*no*/
+          color: #999;
+          margin-left: 4px;
+        }
       }
     }
   }
 }
 .vedioIntros {
   margin-top: 355px; /*no*/
-  padding: 13px 0 0 25px;
+  padding-left: 25px;
+  padding-top: 13px; /*no*/
   .classTitle {
     font-size: 16px;
   }
@@ -376,7 +444,7 @@ export default {
     }
   }
   .moreVedio {
-    margin-top: 22px; /*no*/
+    margin-top: 24px; 
     .moreContent {
       // height: 112px;
       .moreBox {
@@ -420,7 +488,7 @@ export default {
     .oneImg {
       img {
         width: 325px;
-        height: 170px;
+        max-height: 170px;
       }
     }
     .twoImg {
@@ -428,10 +496,18 @@ export default {
       display: flex;
       padding-right: 25px;
       justify-content: space-between;
-      img {
+      margin-bottom: 15px;
+      // img {
+      //   width: 155px;
+      //   height:216px;
+      // }
+      div.img{
         width: 155px;
-        height: 216px;
+        min-height: 155px *1.78;
       }
+    }
+    .lastImg {
+      margin-bottom: 0;
     }
   }
   .noMore {
@@ -441,6 +517,9 @@ export default {
     margin-bottom: 25px;
     margin-top: 7px;
     padding-right: 25px;
+  }
+  .firstContent{
+    margin-top: 0;
   }
 }
 .vedioPop {

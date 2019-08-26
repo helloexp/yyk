@@ -9,6 +9,11 @@ import "./assets/iconfont/iconfont.css";
 // 动画插件
 import "animate.css";
 
+import toast from './components/Toast'
+import loading from './components/Loading'
+Vue.use(toast)
+Vue.use(loading)
+
 import axios from "axios";
 
 // import 'lib-flexible'
@@ -29,7 +34,7 @@ Vue.use(api);
 import VueLazyload from "vue-lazyload";
 
 Vue.use(VueLazyload, {
-  preLoad: 1.3,
+  // preLoad: 1.3,
   error: "dist/error.png",
   loading: "dist/loading.gif",
   attempt: 1

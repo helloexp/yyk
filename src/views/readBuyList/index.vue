@@ -11,12 +11,12 @@
     <div class="tuijianTitle">
       <div class="tjTitle">为你推荐</div>
       <div class="allReadCount">
-        <img src="@@/images/allcount.png" class="countImg" alt="">
+        <img src="@@/images/allcount.png" class="countImg">
         <span class="countIntro">{{allReadCount | handleAllReadC}}人正在边看边买</span>
       </div>
     </div>
     <div class="moiveList">
-      <div class="moiveTab" v-for="(item,index) in readBuyList" :key="index" :class="index == 0 ? 'firstTba' :''" @click="jumpDetail(item.video)">
+      <div class="moiveTab" v-for="(item,index) in readBuyList" :key="index" :class="index == 0 ? 'firstTba' :''" @click="jumpDetail(item.vid, item.video)">
         <img v-lazy="item.cover" alt class="coverImg" />
         <div class="introsBox">
           <p class="moiveDate">{{item.create_time | handleTime}}</p>
@@ -58,7 +58,7 @@ export default {
       scrollTop: 0,
       currentPage: 1 ,
       testPage: 1,
-      source:null
+      source: null
     };
   },
   components: {
@@ -114,8 +114,8 @@ export default {
         that.scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
       }
     },
-    jumpDetail(vid) {
-      this.$router.push({ path: "/readBuyDetail/" + vid });
+    jumpDetail(vid, vedio) {
+      this.$router.push({ path: "/readBuyDetail?vid=" + vid + "&vedio=" + vedio });
     }
   },
   watch:{
@@ -160,6 +160,7 @@ export default {
   overflow: hidden;
   width: 100%;
   // height: 220px;
+  background: @backGrayColor;
   .swiper-img {
     // height: 220px;
     width: 100%;
@@ -203,6 +204,7 @@ export default {
         min-width: 141px;
         margin-bottom: 6px;
         font-weight: bold;
+        overflow-y: hidden;
       }
       .bannelBox {
         display: flex;

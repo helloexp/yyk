@@ -54,5 +54,5 @@ service.interceptors.response.use(
  * @return {AxiosInstance}
  */
 export default function() {
-  return service
+  return service;
 }

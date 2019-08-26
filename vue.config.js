@@ -42,5 +42,21 @@ module.exports = {
     sourceMap: false
   },
   // 生产环境生产sm文件
-  productionSourceMap: true
+  productionSourceMap: true,
+  chainWebpack:config => {
+    const types = ['vue-modules', 'vue', 'normal-modules', 'normal']
+    types.forEach(type => addStyleResource(config.module.rule('less').oneOf(type))) // 全局引用less文件
+  },
+}
+// 全局导入less基础样式
+function addStyleResource (rule) {
+  rule
+    .use('style-resource')
+    .loader('style-resources-loader')
+    .options({
+      patterns: [
+        // 需要全局导入的less
+        path.resolve(__dirname, './src/assets/less/base.less')
+      ]
+    })
 }

@@ -14,7 +14,7 @@ const routes = [
     component: readBuyList
   },
   {
-    path: "/readBuyDetail/:vid",
+    path: "/readBuyDetail",
     name: "readBuyDetail",
     meta: {
       title: "边看边买"
