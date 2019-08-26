@@ -5,7 +5,7 @@ module.exports = {
   devServer: {
     proxy: {
       '/api': {
-        target: 'https://event.uniqlo.cn/uniqlo_new_cms', // target host
+        target: 'https://test-event.uniqlo.cn/uniqlo_uat_cms', // target host
         ws: true, // proxy websockets 
         changeOrigin: true, // needed for virtual hosted sites
         pathRewrite: {

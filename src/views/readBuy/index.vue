@@ -98,7 +98,7 @@
         <p class="classTitle">更多精彩视频</p>
         <div class="scrollWrap moreContent">
           <div class="scrollBox moreBox">
-            <span class="scorllItem" v-for="(item, index) in VDList" :key="index">
+            <span class="scorllItem" v-for="(item, index) in VDList" :key="index" @click="jumpDetail(item.vid, item.video)">
               <img v-lazy="item.cover" class="moreImg">
               <p class="moreTitle">{{item.title}}</p>
               <p class="moreIntros">{{item.subtitle}}</p>
@@ -165,6 +165,7 @@ export default {
     }
   },
   created() {
+    console.log(process.env.VUE_APP_IMGBASE,'VUE_APP_IMGBASE');
     // this.$loading(true)
     this.vedioId = this.$route.query.vedio;
     this.vid = this.$route.query.vid;
@@ -178,8 +179,6 @@ export default {
     this.initVideo();
     // 获取原生返回的网络状态，根据网络状态控制视频播放
     // this.startVedio();
-    console.log(process.env,'0000');
-    
     this.getReadBuyDetail();
     // this.$loading(true);
   },
@@ -273,7 +272,12 @@ export default {
       } catch(e) {
         console.log(e);
       }
-    }
+    },
+    jumpDetail(vid, vedio) {
+      console.log(this.$router)
+     this.$router.push({ path: "/readBuyDetail?vid=" + vid + "&vedio=" + vedio });
+    },
+    
   }
 };
 </script>
@@ -522,7 +526,7 @@ export default {
       // }
       div.img{
         width: 155px;
-        min-height: 155px *1.78;
+        min-height: 155px * 1.78;
       }
     }
     .lastImg {
@@ -537,7 +541,7 @@ export default {
     margin-top: 7px;
     padding-right: 25px;
   }
-  .firstContent{
+  .firstContent {
     margin-top: 0;
   }
 }

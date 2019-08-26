@@ -118,13 +118,23 @@ export default {
       this.$router.push({ path: "/readBuyDetail?vid=" + vid + "&vedio=" + vedio });
     },
     bannerJump(jumpurl) {
+      let that = this;
+      let vid = -1;
       if(jumpurl) {
         let strArr = jumpurl.split('?');
         if(strArr.length >= 2) {
-          strArr[2].split('&');
+          let arr = strArr[1].split('&');
+          if(arr.length >= 2) {
+            vid = arr[0].split('=')[1];
+          }
         }
-        console.log(jumpurl.split('?'))
-        // jumpurl.split('?');
+        if(vid >= 0){
+          let idx = that.readBuyList.findIndex(item => {return item.vid == vid});
+          console.log(idx)
+          if(idx > 0) {
+            that.jumpDetail(that.readBuyList[idx].vid, that.readBuyList[idx].video)
+          }
+        }
       }
     }
   },
