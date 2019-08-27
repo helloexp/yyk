@@ -35,7 +35,7 @@ import VueLazyload from "vue-lazyload";
 import loadingImg from "./assets/images/loadingForProduct.gif";
 Vue.use(VueLazyload, {
   // preLoad: 1.3,
-  error: "dist/error.png",
+  // error: "dist/error.png",
   loading: loadingImg,
   attempt: 1
 });

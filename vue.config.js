@@ -60,7 +60,7 @@ module.exports = {
             },
             styles: {
               name: 'styles',
-              test: /\.(sa|sc|c)ss$/,
+              test: /\.(sa|sc|c|le)ss$/,
               chunks: 'all',
               enforce: true,
             },
