@@ -32,11 +32,11 @@ import api from "./api/install";
 Vue.use(api);
 
 import VueLazyload from "vue-lazyload";
-
+import loadingImg from "./assets/images/loadingForProduct.gif";
 Vue.use(VueLazyload, {
   // preLoad: 1.3,
   error: "dist/error.png",
-  loading: "dist/loading.gif",
+  loading: loadingImg,
   attempt: 1
 });
 

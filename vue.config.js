@@ -5,19 +5,19 @@ module.exports = {
   devServer: {
     proxy: {
       '/api': {
-        target: 'https://test-event.uniqlo.cn/uniqlo_uat_cms', // target host
-        ws: true, // proxy websockets 
-        changeOrigin: true, // needed for virtual hosted sites
+        target: 'https://test-event.uniqlo.cn/uniqlo_uat_cms',
+        ws: true,  
+        changeOrigin: true,
         pathRewrite: {
-          '^/api': '' // rewrite path
+          '^/api': ''
         }
       },
       '/imgapi': {
-        target: 'https://pictest.uniqlo.cn/uniqlo', // target host
-        ws: true, // proxy websockets 
-        changeOrigin: true, // needed for virtual hosted sites
+        target: 'https://uatpic.uniqlo.cn/uniqlo',
+        ws: true,
+        changeOrigin: true,
         pathRewrite: {
-          '^/imgapi': '' // rewrite path
+          '^/imgapi': ''
         }
       },
     }

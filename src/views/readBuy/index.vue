@@ -43,16 +43,18 @@
         <p class="classTitle">视频同款</p>
         <div class="scrollWrap asContent">
           <div class="scrollBox asBox">
-            <div class="scorllItem saleOut" v-for="(item, idx) in sameVD" :key="idx">
+            <!-- <div class="scorllItem saleOut" v-for="(item, idx) in sameVD" :key="idx"> -->
+            <div class="scorllItem" :class="{'saleOut': item.inactive || item.xiajia || item.shouqin}" v-for="(item, idx) in sameVD" :key="idx">
               <div class="saleOutPop">
                 售罄
               </div>
-              <img :src="item.mfImgUrl" class="classImg">
-              <p class="classTitle">{{item.keyword}}</p>
-              <p class="classId">{{item.pnum}}</p>
+              <img class="classImg" v-lazy="{src: item.mfImgUrl, error: item.skuImgUrl}">
+              <p class="classTitle">{{item.name}}</p>
+              <!-- <p class="classId">{{item.pnum}}</p> -->
               <p class="classPrice">
-                <span class="yprice">￥12.00</span>
-                <span class="findSame">找相似</span>
+                <span class="yprice">￥{{item.originPrice}}</span>
+                <span class="findSame" v-if="item.inactive || item.xiajia || item.shouqin">找相似</span>
+                <span class="joinShop" v-else></span>
               </p>
             </div>
             <!-- <span class="scorllItem">
@@ -99,7 +101,7 @@
         <div class="scrollWrap moreContent">
           <div class="scrollBox moreBox">
             <span class="scorllItem" v-for="(item, index) in VDList" :key="index" @click="jumpDetail(item.vid, item.video)">
-              <img v-lazy="item.cover" class="moreImg">
+              <img v-lazy="{src: item.cover}" class="moreImg">
               <p class="moreTitle">{{item.title}}</p>
               <p class="moreIntros">{{item.subtitle}}</p>
             </span>
@@ -153,7 +155,7 @@ export default {
         canClick: true
       },
       imgBaseUrl: '',
-      imgUrlParams: ''
+      imgUrlParams: '',
     };
   },
   components: {},
@@ -166,10 +168,9 @@ export default {
   },
   created() {
     console.log(process.env.VUE_APP_IMGBASE,'VUE_APP_IMGBASE');
-    // this.$loading(true)
+    this.$loading(true);
     this.vedioId = this.$route.query.vedio;
     this.vid = this.$route.query.vid;
-    console.log(this.$route)
   },
   mounted() {
     // 不同环境下的图片域名
@@ -207,25 +208,32 @@ export default {
         let res = await this.$api.readBuy.readBuyDetail(params);
         if (res && res.result == 0) {
           that.allDetailData = res;
-          if (res.same_list && res.same_list.length > 0) {
-            res.same_list.forEach(item => {
-              item['mfImgUrl'] = that.imgBaseUrl + that.imgUrlParams + item.goods_id + "/main/first/" + "1000/" + item.color_no + '.jpg';
-              item['skuImgUrl'] = that.imgBaseUrl + that.imgUrlParams + item.goods_id + "/sku/" + "1000/" + item.color_no + '.jpg';
-            });
-            that.sameVD = res.same_list;
-          }
+          
           if (res.video_list && res.video_list.length > 0) {
             that.VDList = res.video_list;
           }
           if (res.more_list && res.more_list.length > 0) {
             that.moreVD = res.more_list;
           }
-          console.log(res.video_lnum);
           that.otherInfo.isLike = Number(res.like);
           that.otherInfo["likeC"] = res.video_lnum;
           that.otherInfo["watchC"] = res.video_wnum;
+          if (res.same_list && res.same_list.length > 0) {
+            that.handleSameVideoData(res.same_list);
+          }
+          that.$loading(false);
         }
       } catch (e) {
+        console.log(e);
+      }
+    },
+    // 获取图片地址参数
+    async getImgParams() {
+      let that = this;
+      try{
+        let res = await that.$api.imgUrlParams.imgUrlParams();
+        that.imgUrlParams  = res.picturePath;
+      } catch(e) {
         console.log(e);
       }
     },
@@ -262,22 +270,36 @@ export default {
         that.otherInfo.isLike = true;
       }
     },
-    getImgParams() {
+    jumpDetail(vid, vedio) {
+     this.$router.push({ path: "/readBuyDetail?vid=" + vid + "&vedio=" + vedio });
+    },
+    handleSameVideoData(list) {
       let that = this;
-      try{
-        this.$api.imgUrlParams.imgUrlParams().then((data) => {
-          console.log(data)
-          that.imgUrlParams = data.picturePath;
-        });
+      list.sort(function(a, b) {
+        return (Number(b.sort) - Number(a.sort))
+      });
+      list.forEach(async (item, idx) =>  {
+        let res = await that.sameVedioData(item.goods_id);
+        item["mfImgUrl"] = that.imgBaseUrl + that.imgUrlParams + item.goods_id + "/main/first/" + "1000/" + item.color_no + '.jpg';
+        item["skuImgUrl"] = that.imgBaseUrl + that.imgUrlParams + item.goods_id + "/sku/" + "1000/" + item.color_no + '.jpg';
+        item["inactive"] = res.inactive == "Y";
+        item["xiajia"] = !(res.approval == "LIST" || res.approval == "AUTOLIST");
+        item["shouqin"] = res.hasStock != "Y";
+        item["name"] = res.fullName;
+        item["originPrice"] = res.originPrice;
+        item["sortS"] = idx;
+        that.sameVD.push(item);
+      });
+    },
+    async sameVedioData(spu) {
+      let that = this;
+      try {
+        let res = await that.$api.imgUrlParams.samevideo(spu);
+        return res;
       } catch(e) {
         console.log(e);
       }
-    },
-    jumpDetail(vid, vedio) {
-      console.log(this.$router)
-     this.$router.push({ path: "/readBuyDetail?vid=" + vid + "&vedio=" + vedio });
-    },
-    
+    }
   }
 };
 </script>
@@ -388,6 +410,7 @@ export default {
     }
   }
   .asVedio {
+    margin-top: 13px;
     .asContent {
       height: 186px;
       .asBox {
@@ -417,8 +440,10 @@ export default {
           }
           .classTitle {
             font-size: 12px;
-            overflow: hidden;
             line-height: 14px;
+            height: 28px;
+            width: 125px;
+            white-space: pre-wrap
           }
           .classId {
             font-size: 12px;
@@ -469,16 +494,16 @@ export default {
   .moreVedio {
     margin-top: 24px; 
     .moreContent {
-      // height: 112px;
+      height: 112px;
       .moreBox {
-        // height: 114px;
+        height: 114px;
         .scorllItem {
-          // height: 112px;
+          height: 112px;
           width: 100px;
           margin-right: 10px;
           font-size: 12px;
           .moreImg {
-            // height: 66px;
+            height: 66px;
             width: 107px;
           }
           .moreTitle {
