@@ -32,8 +32,47 @@ module.exports = {
     },
   },
   configureWebpack: config => {
-    if (debug) { // 开发环境配置
-        config.devtool = 'source-map'
+    if (debug) {
+      // 生产环境生产sm文件,会在source下面生成一个webpack文件里面src是vue源码
+      config.devtool = 'source-map';
+    } else {
+      // 生产环境,抽离公共脚本，样式
+      let optimization = {
+        splitChunks: {
+          cacheGroups: {
+            vendor:{
+              chunks:"all",
+                  test: /node_modules/,
+                  name:"vendor",
+                  minChunks: 1,
+                  maxInitialRequests: 5,
+                  minSize: 0,
+                  priority:100,
+            },
+            common: {
+              chunks:"all",
+              test:/[\\/]src[\\/]js[\\/]/,
+              name: "common",
+              minChunks: 2,
+              maxInitialRequests: 5,
+              minSize: 0,
+              priority:60
+            },
+            styles: {
+              name: 'styles',
+              test: /\.(sa|sc|c)ss$/,
+              chunks: 'all',
+              enforce: true,
+            },
+            runtimeChunk: {
+              name: 'manifest'
+            }
+          }
+        }
+      }
+      Object.assign(config,{
+        optimization
+      });
     }
     Object.assign(config, {
       // 开发生产共同配置
@@ -50,20 +89,20 @@ module.exports = {
     loaderOptions: {
       postcss: {
         plugins: [
-          require('postcss-px2rem')({ // px单位转为rem单位，移动端等比缩放适配
+          // px单位转为rem单位，移动端等比缩放适配
+          require('postcss-px2rem')({ 
             remUnit: 37.5
           })
         ]
       }
     },
-    // 启用 CSS modules for all css / pre-processor files.
     modules: false,
-    // 是否使用css分离插件 ExtractTextPlugin
+    // 是否使用css分离插件 ExtractTextPlugin,将样式和脚本分开
     extract: true,
-    // 开启 CSS source maps?
+    // 开启 CSS source maps,生成未被压缩的样式
     sourceMap: true
   },
-  // 生产环境生产sm文件
+  // 生产环境生产sm文件,会在source下面生成一个webpack文件里面src是vue源码
   productionSourceMap: true,
   chainWebpack:config => {
     const types = ['vue-modules', 'vue', 'normal-modules', 'normal']
