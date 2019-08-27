@@ -1,6 +1,9 @@
 import api from "../index";
 import urls from "./urls";
 import md5Util from "../../assets/js/md5.js";
+import _utils from '@/utils/utils.js';
+let platform = _utils.isIos() ? "iphone" : "android";
+console.log(platform);
 // 生成签名
 function buildSign(platform, macAddress, time) {
   var pjStr =

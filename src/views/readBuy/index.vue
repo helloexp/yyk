@@ -101,9 +101,9 @@
         <div class="scrollWrap moreContent">
           <div class="scrollBox moreBox">
             <span class="scorllItem" v-for="(item, index) in VDList" :key="index" @click="jumpDetail(item.vid, item.video)">
-              <img v-lazy="{src: item.cover}" class="moreImg">
-              <p class="moreTitle">{{item.title}}</p>
-              <p class="moreIntros">{{item.subtitle}}</p>
+              <img v-lazy="{ src: item.cover }" class="moreImg">
+              <p class="moreTitle">{{ item.title }}</p>
+              <p class="moreIntros">{{ item.subtitle }}</p>
             </span>
           </div>
         </div>
@@ -113,14 +113,14 @@
         <div class="newBox">
           <div v-for="(item, idx) in moreVD" :key="idx">
             <div class="oneImg" v-if="item.type == 1">
-              <img  v-for="(_item, _idx) in item.img_list" :key="_idx" v-lazy="_item.img_url"> 
+              <img v-for="(_item, _idx) in item.img_list" :key="_idx" v-lazy="_item.img_url"> 
             </div>
             <div class="twoImg" v-else :class="{ 'lastImg': idx == moreVD.length - 1 }">
-                <div class="img" v-for="(_item, _idx) in item.img_list" :key="_idx" 
-                    :style="{background:'url(' + _item.img_url + ') no-repeat',
-                    'background-size':'cover',
-                    'background-position': 'center 0'}"
-                ></div>
+              <div class="img" v-for="(_item, _idx) in item.img_list" :key="_idx" 
+              :style="{background:'url(' + _item.img_url + ') no-repeat',
+              'background-size':'cover',
+              'background-position': 'center 0'}"
+              ></div>
             </div>
           </div>
         </div>
@@ -154,8 +154,8 @@ export default {
         clickCount: 0,
         canClick: true
       },
-      imgBaseUrl: '',
-      imgUrlParams: '',
+      imgBaseUrl: "",
+      imgUrlParams: "",
     };
   },
   components: {},
@@ -167,7 +167,7 @@ export default {
     }
   },
   created() {
-    console.log(process.env.VUE_APP_IMGBASE,'VUE_APP_IMGBASE');
+    // console.log(process.env.VUE_APP_IMGBASE,'VUE_APP_IMGBASE');
     this.$loading(true);
     this.vedioId = this.$route.query.vedio;
     this.vid = this.$route.query.vid;
@@ -175,6 +175,7 @@ export default {
   mounted() {
     // 不同环境下的图片域名
     this.imgBaseUrl = process.env.VUE_APP_IMGBASE;
+    // this.imgBaseUrl = "https://www.uniqlo.cn";
     this.getImgParams();
     // 初始化视频组件
     this.initVideo();
@@ -194,7 +195,6 @@ export default {
       });
       this.player.on("playStateChange", function(res) {
         that.vedioStatus = res;
-        console.log(res);
       });
     },
     // 获取视频详情
@@ -208,11 +208,13 @@ export default {
         let res = await this.$api.readBuy.readBuyDetail(params);
         if (res && res.result == 0) {
           that.allDetailData = res;
-          
           if (res.video_list && res.video_list.length > 0) {
             that.VDList = res.video_list;
-          }
+          };
           if (res.more_list && res.more_list.length > 0) {
+            // res.more_list.forEach(item => {
+            //   resizeImage()
+            // })
             that.moreVD = res.more_list;
           }
           that.otherInfo.isLike = Number(res.like);
@@ -230,9 +232,9 @@ export default {
     // 获取图片地址参数
     async getImgParams() {
       let that = this;
-      try{
+      try {
         let res = await that.$api.imgUrlParams.imgUrlParams();
-        that.imgUrlParams  = res.picturePath;
+        that.imgUrlParams = res.picturePath;
       } catch(e) {
         console.log(e);
       }
@@ -246,44 +248,42 @@ export default {
       // 判断是否登录
 
       // 一次没有点时开始计时，两秒复位一次，超过两次说明，两秒内点击次数过多，直接return
-      if(!that.zanCtrl.canClick) return;
-      if(!that.zanCtrl.clickCount) {
+      if (!that.zanCtrl.canClick) return;
+      if (!that.zanCtrl.clickCount) {
         setTimeout(() => {
           that.zanCtrl.clickCount = 0;
           that.zanCtrl.canClick = true;
-        }, 2000)
+        }, 2000);
       }
-      that.zanCtrl.clickCount ++ ;
+      that.zanCtrl.clickCount++ ;
       if(that.zanCtrl.clickCount > 2) {
-        that.$toast('点赞过于频繁');
+        that.$toast("点赞过于频繁");
         that.zanCtrl.canClick = false;
         return;
       }
-
-
       if(that.otherInfo.isLike) {
         // 请求接口取消点赞
 
         that.otherInfo.isLike = false;
-      }else {
+      } else {
         // 点赞
         that.otherInfo.isLike = true;
       }
     },
     jumpDetail(vid, vedio) {
-     this.$router.push({ path: "/readBuyDetail?vid=" + vid + "&vedio=" + vedio });
+      this.$router.push({ path: "/readBuyDetail?vid=" + vid + "&vedio=" + vedio });
     },
     handleSameVideoData(list) {
       let that = this;
       list.sort(function(a, b) {
-        return (Number(b.sort) - Number(a.sort))
+        return (Number(b.sort) - Number(a.sort));
       });
-      list.forEach(async (item, idx) =>  {
+      list.forEach(async (item, idx) => {
         let res = await that.sameVedioData(item.goods_id);
         item["mfImgUrl"] = that.imgBaseUrl + that.imgUrlParams + item.goods_id + "/main/first/" + "1000/" + item.color_no + '.jpg';
         item["skuImgUrl"] = that.imgBaseUrl + that.imgUrlParams + item.goods_id + "/sku/" + "1000/" + item.color_no + '.jpg';
         item["inactive"] = res.inactive == "Y";
-        item["xiajia"] = !(res.approval == "LIST" || res.approval == "AUTOLIST");
+        item["xiajia"] = !( res.approval == "LIST" || res.approval == "AUTOLIST");
         item["shouqin"] = res.hasStock != "Y";
         item["name"] = res.fullName;
         item["originPrice"] = res.originPrice;
@@ -296,7 +296,7 @@ export default {
       try {
         let res = await that.$api.imgUrlParams.samevideo(spu);
         return res;
-      } catch(e) {
+      } catch (e) {
         console.log(e);
       }
     }
@@ -331,7 +331,6 @@ export default {
         line-height: 19px; /*no*/
         font-weight: bold;
       }
-      
     }
     .readRow {
       margin-top: 15px; /*no*/
@@ -342,7 +341,7 @@ export default {
       .controlPannel {
         display: flex;
         align-items: center;
-        .zanBox{
+        .zanBox {
           display: flex;
           align-items: center;
           .zan {
@@ -372,17 +371,19 @@ export default {
           margin-left: 4px; /*no*/
         }
       }
-      .rightRead{
+      .rightRead {
         display: flex;
+        align-items: center;
         .read {
-        width: 18px; /*no*/
-        height: 15px; /*no*/
-        background: url(@mgLook) no-repeat;
+          width: 18px; /*no*/
+          height: 15px; /*no*/
+          background: url(@mgLook) no-repeat;
         }
         .readCount {
           font-size: 12px; /*no*/
           color: #999;
           margin-left: 4px;
+          padding-top: 1px; /*no*/
         }
       }
     }
@@ -443,7 +444,7 @@ export default {
             line-height: 14px;
             height: 28px;
             width: 125px;
-            white-space: pre-wrap
+            white-space: pre-wrap;
           }
           .classId {
             font-size: 12px;
@@ -492,18 +493,18 @@ export default {
     }
   }
   .moreVedio {
-    margin-top: 24px; 
+    margin-top: 24px;
     .moreContent {
-      height: 112px;
+      // height: 112px;
       .moreBox {
-        height: 114px;
+        // height: 114px;
         .scorllItem {
-          height: 112px;
+          // height: 112px;
           width: 100px;
           margin-right: 10px;
           font-size: 12px;
           .moreImg {
-            height: 66px;
+            // height: 66px;
             width: 107px;
           }
           .moreTitle {
@@ -549,7 +550,7 @@ export default {
       //   width: 155px;
       //   height:216px;
       // }
-      div.img{
+      div.img {
         width: 155px;
         min-height: 155px * 1.78;
       }
