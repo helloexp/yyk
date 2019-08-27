@@ -1,7 +1,7 @@
 import Vue from "vue";
 import Router from "vue-router";
-import readBuyDetail from "./views/readBuy";
-import readBuyList from "./views/readBuyList";
+import readBuyDetail from "./views/readBuy/index.vue";
+import readBuyList from "./views/readBuyList/index.vue";
 Vue.use(Router);
 
 const routes = [
@@ -28,4 +28,4 @@ export default new Router({
   base: process.env.BASE_URL,
   linkActiveClass: "active",
   routes
-})
+});

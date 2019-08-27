@@ -143,11 +143,7 @@ export default {
       moreVD: [],
       sameVD: [],
       VDList: [],
-      otherInfo: {
-        isLike: false,
-        watchC: 0,
-        likeC: 0
-      },
+      otherInfo: {},
       allDetailData: {},
       isWifi: false,
       zanCtrl: {
@@ -171,11 +167,11 @@ export default {
     this.$loading(true);
     this.vedioId = this.$route.query.vedio;
     this.vid = this.$route.query.vid;
+    // 不同环境下的图片域名
+    // this.imgBaseUrl = process.env.VUE_APP_IMGBASE;
+    this.imgBaseUrl = "https://www.uniqlo.cn";
   },
   mounted() {
-    // 不同环境下的图片域名
-    this.imgBaseUrl = process.env.VUE_APP_IMGBASE;
-    // this.imgBaseUrl = "https://www.uniqlo.cn";
     this.getImgParams();
     // 初始化视频组件
     this.initVideo();
@@ -212,9 +208,6 @@ export default {
             that.VDList = res.video_list;
           };
           if (res.more_list && res.more_list.length > 0) {
-            // res.more_list.forEach(item => {
-            //   resizeImage()
-            // })
             that.moreVD = res.more_list;
           }
           that.otherInfo.isLike = Number(res.like);
@@ -241,6 +234,10 @@ export default {
     },
     startVedio() {
       this.player.play();
+      this.isShowVedioPop = false;
+    },
+    pauseVedio() {
+      this.player.pause();
     },
     likeVedio() {
       // this.$toast(this.vedioId);
@@ -271,7 +268,7 @@ export default {
       }
     },
     jumpDetail(vid, vedio) {
-      this.$router.push({ path: "/readBuyDetail?vid=" + vid + "&vedio=" + vedio });
+      this.$router.replace({ path: "/readBuyDetail?vid=" + vid + "&vedio=" + vedio });
     },
     handleSameVideoData(list) {
       let that = this;
@@ -327,7 +324,7 @@ export default {
         width: 100%; /*no*/
         font-size: 18px; /*no*/
         overflow: hidden;
-        height: 19px; /*no*/
+        max-height: 38px; /*no*/
         line-height: 19px; /*no*/
         font-weight: bold;
       }

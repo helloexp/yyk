@@ -1,11 +1,12 @@
 const path = require('path');
+const debug = process.env.NODE_ENV !== 'production'
 module.exports = {
   // 设置打包文件相对路径
   publicPath: './',
   devServer: {
     proxy: {
       '/api': {
-        target: 'https://test-event.uniqlo.cn/uniqlo_uat_cms',
+        target: 'https://event.uniqlo.cn/uniqlo_new_cms',
         ws: true,  
         changeOrigin: true,
         pathRewrite: {
@@ -13,7 +14,7 @@ module.exports = {
         }
       },
       '/imgapi': {
-        target: 'https://uatpic.uniqlo.cn/uniqlo',
+        target: 'https://www.uniqlo.cn',
         ws: true,
         changeOrigin: true,
         pathRewrite: {
@@ -27,13 +28,26 @@ module.exports = {
       alias: {
         '@': path.resolve(__dirname, './src/'), // 路径重写
         '@@': path.resolve(__dirname, './src/assets/')
-      }
+      },
+    },
+  },
+  configureWebpack: config => {
+    if (debug) { // 开发环境配置
+        config.devtool = 'source-map'
     }
+    Object.assign(config, {
+      // 开发生产共同配置
+      resolve: {
+        alias: {
+          '@': path.resolve(__dirname, './src/'), // 路径重写
+          '@@': path.resolve(__dirname, './src/assets/')
+        } // 别名配置
+      }
+    })
   },
   css: {
     // css预设器配置项
     loaderOptions: {
-      css: {},
       postcss: {
         plugins: [
           require('postcss-px2rem')({ // px单位转为rem单位，移动端等比缩放适配
@@ -47,7 +61,7 @@ module.exports = {
     // 是否使用css分离插件 ExtractTextPlugin
     extract: true,
     // 开启 CSS source maps?
-    sourceMap: false
+    sourceMap: true
   },
   // 生产环境生产sm文件
   productionSourceMap: true,

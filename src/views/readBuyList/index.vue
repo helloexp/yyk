@@ -3,7 +3,7 @@
     <div class="wrapper">
       <swiper :options="swiperOption">
         <swiper-slide v-for="item of bannerList" :key="item.id">
-          <img v-lazy="item.img_url" class="swiper-img" @click="bannerJump(item.jump_url)" />
+          <img :src="item.img_url" class="swiper-img" @click="bannerJump(item.jump_url)" />
         </swiper-slide>
         <div class="swiper-pagination" slot="pagination"></div>
       </swiper>
@@ -242,8 +242,9 @@ export default {
         .count {
           font-size: 10px;
           color: #999;
-          line-height: 10px;
+          line-height: 12px;
           margin-left: 4px;
+          margin-top: 2px;
         }
       }
     }
