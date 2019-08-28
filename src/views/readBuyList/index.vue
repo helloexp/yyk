@@ -41,6 +41,7 @@
 <script>
 import dayjs from "dayjs";
 import Loading from "../../components/LoadMore.vue";
+import { setTimeout } from 'timers';
 export default {
   name: "readBuyList",
   data: function() {
@@ -55,19 +56,50 @@ export default {
       bannerList: [],
       isShowLoadMore: false,
       noMoreVedio: false,
+      isLoading: false,
       scrollTop: 0,
       currentPage: 1 ,
-      testPage: 1,
-      source: null
     };
   },
   components: {
     Loading: Loading
   },
   methods: {
-    handleNetstate(e) {
-      // 网络链接改变时处理函数
-      console.log(e);
+    // 获取更多数据
+    async getMoreList() {
+      let that = this;
+      // 正在请求中不给请求，节流
+      if(!that.isLoading) {
+        // 改为请求中
+        that.isLoading = true;
+        // 没有更多数据
+        if(that.noMoreVedio) {
+          that.isShowLoadMore = false;
+          return;
+        };
+        let params = {
+          page: that.currentPage,
+        }
+        let res = await that.$api.readBuy.readBuyList(params);
+        if(res && res.result == 0 && res.list.length > 0){
+          that.isShowLoadMore = false;
+          that.readBuyList = that.readBuyList.concat(res.list);
+          if(that.readBuyList.length == res.total){
+            that.noMoreVedio = true;
+          }else {
+            that.currentPage ++;
+          }
+          // dom渲染完成，放开请求
+          that.$nextTick(() => {
+            setTimeout(() => {
+              that.isLoading = false
+            }, 300);
+          });
+        }else {
+          that.isShowLoadMore = false;
+          that.noMoreVedio = true;
+        }
+      }
     },
     // 获取列表页数据
     async getReadBuyList() {
@@ -76,22 +108,16 @@ export default {
         let params = {
           page: that.currentPage,
         };
-        if(that.noMoreVedio) {
-          that.isShowLoadMore = false;
-          return;
-        };
         let res = await that.$api.readBuy.readBuyList(params);
         if(res && res.result == 0 && res.list.length > 0){
-            that.allReadCount = Number(res.video_total||0);
-            that.isShowLoadMore = false;
-            that.readBuyList = that.readBuyList.concat(res.list);
-            if(that.readBuyList.length == res.total){
-              that.noMoreVedio = true;
-            }else {
-              that.currentPage ++;
-            }
-        }else {
-          that.isShowLoadMore = false;
+          // 总阅读量
+          that.allReadCount = Number(res.video_total || 0);
+          that.readBuyList = that.readBuyList.concat(res.list);
+          if(that.readBuyList.length == res.total){
+            that.noMoreVedio = true;
+          }else {
+            that.currentPage ++;
+          }
         }
       } catch (e) {
         console.log("请求出错" + e);
@@ -131,7 +157,7 @@ export default {
         if(vid >= 0){
           let idx = that.readBuyList.findIndex(item => {return item.vid == vid});
           console.log(idx)
-          if(idx > 0) {
+          if(idx >= 0) {
             that.jumpDetail(that.readBuyList[idx].vid, that.readBuyList[idx].video)
           }
         }
@@ -139,11 +165,13 @@ export default {
     }
   },
   watch:{
-    scrollTop(val){
+    scrollTop(val) {
       let that = this;
       if(window.screen.availHeight + val == document.body.scrollHeight){
-        that.isShowLoadMore = true;
-        that.getReadBuyList();
+        if(!that.noMoreVedio) {
+          that.isShowLoadMore = true;
+          that.getMoreList();
+        }
       }
     }
   },
@@ -269,7 +297,7 @@ export default {
     align-items: center;
     padding-right: 10px;
     border-radius: 15px;
-    .countIntro{
+    .countIntro {
       font-size: 12px;
       margin-left: 6px;
     }

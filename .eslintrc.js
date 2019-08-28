@@ -12,7 +12,6 @@ module.exports = {
     // allow async-await
     "generator-star-spacing": 0,
     // allow debugger during development
-    "no-debugger": process.env.NODE_ENV === "production" ? 2 : 0, // 禁用 debugger
     "template-curly-spacing": 0, // 要求或禁止模板字符串中的嵌入表达式周围空格的使用
     indent: 0, // 强制使用一致的缩进
     semi: [1, "always"], // 使用分号代替 ASI

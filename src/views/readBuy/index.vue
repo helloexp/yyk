@@ -113,7 +113,7 @@
         <div class="newBox">
           <div v-for="(item, idx) in moreVD" :key="idx">
             <div class="oneImg" v-if="item.type == 1">
-              <img v-for="(_item, _idx) in item.img_list" :key="_idx" v-lazy="_item.img_url"> 
+              <img v-for="(_item, _idx) in item.img_list" :key="_idx" :src="_item.img_url"> 
             </div>
             <div class="twoImg" v-else :class="{ 'lastImg': idx == moreVD.length - 1 }">
               <div class="img" v-for="(_item, _idx) in item.img_list" :key="_idx" 
@@ -129,9 +129,11 @@
         没有更多了
       </div>
     </div>
+    <Confirm ref="confirmToast" @userControl="toastType"></Confirm>
   </div>
 </template>
 <script>
+import Confirm from "@/components/confirmToast.vue";
 export default {
   data() {
     return {
@@ -152,13 +154,28 @@ export default {
       },
       imgBaseUrl: "",
       imgUrlParams: "",
+      userInfo: {},
+      netType: ""
     };
   },
-  components: {},
+  components: {
+    Confirm
+  },
   watch: {
     vedioStatus(val) {
       if (val == 0) {
         this.isShowVedioPop = true;
+      }
+    },
+    netType(val) {
+      let that = this;
+      if(val == "4g") {
+        that.showConfrim("检测到你的网络非WIFI，请确认非WIFI环境是否自动播放视频","net")
+      } else if (val == 'wifi') {
+        that.startVedio();
+        that.$refs.confirmToast.hidden();
+      } else {
+
       }
     }
   },
@@ -179,6 +196,15 @@ export default {
     // this.startVedio();
     this.getReadBuyDetail();
     // this.$loading(true);
+
+    // getUserToken
+    window["getUserToken"] = (result) => {
+      this.getUserToken(result);
+    }
+    window["getNetType"] = (result) => {
+      this.getNetType(res);
+    }
+    this.showConfrim("检测到你的网络非WIFI，请确认非WIFI环境是否自动播放视频","net")
   },
   methods: {
     // 视频组件
@@ -232,13 +258,16 @@ export default {
         console.log(e);
       }
     },
+    // 播放
     startVedio() {
       this.player.play();
       this.isShowVedioPop = false;
     },
+    // 暂停
     pauseVedio() {
       this.player.pause();
     },
+    // 点赞
     likeVedio() {
       // this.$toast(this.vedioId);
       let that = this;
@@ -267,9 +296,11 @@ export default {
         that.otherInfo.isLike = true;
       }
     },
+    // 视频切换
     jumpDetail(vid, vedio) {
       this.$router.replace({ path: "/readBuyDetail?vid=" + vid + "&vedio=" + vedio });
     },
+    // 视频同款处理
     handleSameVideoData(list) {
       let that = this;
       list.sort(function(a, b) {
@@ -288,6 +319,7 @@ export default {
         that.sameVD.push(item);
       });
     },
+    // 视频同款数据
     async sameVedioData(spu) {
       let that = this;
       try {
@@ -295,6 +327,37 @@ export default {
         return res;
       } catch (e) {
         console.log(e);
+      }
+    },
+    /*
+      原生交互方法
+    */
+    // 获取用户登录信息
+    getUserToken(res) {
+      console.log(res,"token------");
+    },
+    // 网络状态
+    getNetType(res) {
+      console.log(res,"net------");
+      this.netType = "wifi";
+    },
+    // 弹窗提示
+    showConfrim(content, type) {
+      let netConfig = {
+        titleText: "自动播放视频？",
+        cancelText: "不播放",
+        confirmText: "自动播放",
+        data: "net"
+      };
+      this.$refs.confirmToast.show(content, netConfig);
+    },
+    // 点击弹窗操作处理
+    toastType(type, data) {
+      let that = this;
+      if (data == "net") {
+        if (type == "clickConfirm") {
+          that.startVedio();
+        }
       }
     }
   }
