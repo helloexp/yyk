@@ -5,13 +5,12 @@
       <div class="titleBox">
         <div class="titleRow">
           <p class="title">{{ allDetailData.title }}</p>
-          
         </div>
         <div class="readRow">
           <div class="controlPannel">
             <div class="zanBox" @click="likeVedio()">
-              <img v-if="otherInfo.isLike" src="@@/images/redheart.png">
-              <img v-else src="@@/images/blackheart.png">
+              <img v-if="otherInfo.isLike" src="@@/images/redheart.png" />
+              <img v-else src="@@/images/blackheart.png" />
               <!-- <span class="zan" :class="{'notLike':otherInfo.isLike}"></span> -->
               <span class="zanCount">{{otherInfo.likeC}}</span>
             </div>
@@ -20,7 +19,7 @@
           </div>
           <p class="rightRead">
             <!-- <span class="read"></span> -->
-            <img src="@@/images/look.png" alt="">
+            <img src="@@/images/look.png" alt />
             <span class="readCount">{{ otherInfo.watchC }}</span>
           </p>
         </div>
@@ -28,13 +27,13 @@
     </div>
     <div class="vedioPop" v-if="isShowVedioPop">
       <p class="tuijian">为您推荐</p>
-      <img class="midContent" v-lazy="allDetailData.cover">
-        <!-- <img src="" class="leftImg">
+      <img class="midContent" v-lazy="allDetailData.cover" />
+      <!-- <img src="" class="leftImg">
         <div class="rightIntros">
           <p class="rightIntroTitle">棉质休闲圆领T恤(长袖)</p>
           <p class="rightIntroId">419974</p>
           <p class="rightIntroPric">￥99.00</p>
-        </div> -->
+      </div>-->
       <!-- </div> -->
       <div class="refresh" @click="startVedio"></div>
     </div>
@@ -44,11 +43,14 @@
         <div class="scrollWrap asContent">
           <div class="scrollBox asBox">
             <!-- <div class="scorllItem saleOut" v-for="(item, idx) in sameVD" :key="idx"> -->
-            <div class="scorllItem" :class="{'saleOut': item.inactive || item.xiajia || item.shouqin}" v-for="(item, idx) in sameVD" :key="idx">
-              <div class="saleOutPop">
-                售罄
-              </div>
-              <img class="classImg" v-lazy="{src: item.mfImgUrl, error: item.skuImgUrl}">
+            <div
+              class="scorllItem"
+              :class="{'saleOut': item.inactive || item.xiajia || item.shouqin}"
+              v-for="(item, idx) in sameVD"
+              :key="idx"
+            >
+              <div class="saleOutPop">售罄</div>
+              <img class="classImg" v-lazy="{src: item.mfImgUrl, error: item.skuImgUrl}" />
               <p class="classTitle">{{item.name}}</p>
               <!-- <p class="classId">{{item.pnum}}</p> -->
               <p class="classPrice">
@@ -92,7 +94,7 @@
                 <span class="yprice">￥12.00</span>
                 <span class="joinShop"></span>
               </p>
-            </span> -->
+            </span>-->
           </div>
         </div>
       </div>
@@ -100,24 +102,36 @@
         <p class="classTitle">更多精彩视频</p>
         <div class="scrollWrap moreContent">
           <div class="scrollBox moreBox">
-            <span class="scorllItem" v-for="(item, index) in VDList" :key="index" @click="jumpDetail(item.vid, item.video)">
-              <img v-lazy="{ src: item.cover }" class="moreImg">
+            <span
+              class="scorllItem"
+              v-for="(item, index) in VDList"
+              :key="index"
+              @click="jumpDetail(item.vid, item.video)"
+            >
+              <img v-lazy="{ src: item.cover }" class="moreImg" />
               <p class="moreTitle">{{ item.title }}</p>
               <p class="moreIntros">{{ item.subtitle }}</p>
             </span>
           </div>
         </div>
       </div>
-      <div class="moreNew" v-if="moreVD.length" :class="{'firstContent': !sameVD.length && !VDList.length}">
+      <div
+        class="moreNew"
+        v-if="moreVD.length"
+        :class="{'firstContent': !sameVD.length && !VDList.length}"
+      >
         <p class="classTitle">更多新品</p>
         <div class="newBox">
           <div v-for="(item, idx) in moreVD" :key="idx">
             <div class="oneImg" v-if="item.type == 1">
-              <img v-for="(_item, _idx) in item.img_list" :key="_idx" :src="_item.img_url"> 
+              <img v-for="(_item, _idx) in item.img_list" :key="_idx" :src="_item.img_url" />
             </div>
             <div class="twoImg" v-else :class="{ 'lastImg': idx == moreVD.length - 1 }">
-              <div class="img" v-for="(_item, _idx) in item.img_list" :key="_idx" 
-              :style="{background:'url(' + _item.img_url + ') no-repeat',
+              <div
+                class="img"
+                v-for="(_item, _idx) in item.img_list"
+                :key="_idx"
+                :style="{background:'url(' + _item.img_url + ') no-repeat',
               'background-size':'cover',
               'background-position': 'center 0'}"
               ></div>
@@ -125,9 +139,7 @@
           </div>
         </div>
       </div>
-      <div class="noMore">
-        没有更多了
-      </div>
+      <div class="noMore">没有更多了</div>
     </div>
     <Confirm ref="confirmToast" @userControl="toastType"></Confirm>
   </div>
@@ -169,13 +181,15 @@ export default {
     },
     netType(val) {
       let that = this;
-      if(val == "4g") {
-        that.showConfrim("检测到你的网络非WIFI，请确认非WIFI环境是否自动播放视频","net")
-      } else if (val == 'wifi') {
+      if (val == "4g") {
+        that.showConfrim(
+          "检测到你的网络非WIFI，请确认非WIFI环境是否自动播放视频",
+          "net"
+        );
+      } else if (val == "wifi") {
         that.startVedio();
         that.$refs.confirmToast.hidden();
       } else {
-
       }
     }
   },
@@ -198,13 +212,16 @@ export default {
     // this.$loading(true);
 
     // getUserToken
-    window["getUserToken"] = (result) => {
+    window["getUserToken"] = result => {
       this.getUserToken(result);
-    }
-    window["getNetType"] = (result) => {
+    };
+    window["getNetType"] = result => {
       this.getNetType(res);
-    }
-    this.showConfrim("检测到你的网络非WIFI，请确认非WIFI环境是否自动播放视频","net")
+    };
+    this.showConfrim(
+      "检测到你的网络非WIFI，请确认非WIFI环境是否自动播放视频",
+      "net"
+    );
   },
   methods: {
     // 视频组件
@@ -232,7 +249,7 @@ export default {
           that.allDetailData = res;
           if (res.video_list && res.video_list.length > 0) {
             that.VDList = res.video_list;
-          };
+          }
           if (res.more_list && res.more_list.length > 0) {
             that.moreVD = res.more_list;
           }
@@ -254,7 +271,7 @@ export default {
       try {
         let res = await that.$api.imgUrlParams.imgUrlParams();
         that.imgUrlParams = res.picturePath;
-      } catch(e) {
+      } catch (e) {
         console.log(e);
       }
     },
@@ -281,13 +298,13 @@ export default {
           that.zanCtrl.canClick = true;
         }, 2000);
       }
-      that.zanCtrl.clickCount++ ;
-      if(that.zanCtrl.clickCount > 2) {
+      that.zanCtrl.clickCount++;
+      if (that.zanCtrl.clickCount > 2) {
         that.$toast("点赞过于频繁");
         that.zanCtrl.canClick = false;
         return;
       }
-      if(that.otherInfo.isLike) {
+      if (that.otherInfo.isLike) {
         // 请求接口取消点赞
 
         that.otherInfo.isLike = false;
@@ -298,20 +315,38 @@ export default {
     },
     // 视频切换
     jumpDetail(vid, vedio) {
-      this.$router.replace({ path: "/readBuyDetail?vid=" + vid + "&vedio=" + vedio });
+      this.$router.replace({
+        path: "/readBuyDetail?vid=" + vid + "&vedio=" + vedio
+      });
     },
     // 视频同款处理
     handleSameVideoData(list) {
       let that = this;
       list.sort(function(a, b) {
-        return (Number(b.sort) - Number(a.sort));
+        return Number(b.sort) - Number(a.sort);
       });
       list.forEach(async (item, idx) => {
         let res = await that.sameVedioData(item.goods_id);
-        item["mfImgUrl"] = that.imgBaseUrl + that.imgUrlParams + item.goods_id + "/main/first/" + "1000/" + item.color_no + '.jpg';
-        item["skuImgUrl"] = that.imgBaseUrl + that.imgUrlParams + item.goods_id + "/sku/" + "1000/" + item.color_no + '.jpg';
+        item["mfImgUrl"] =
+          that.imgBaseUrl +
+          that.imgUrlParams +
+          item.goods_id +
+          "/main/first/" +
+          "1000/" +
+          item.color_no +
+          ".jpg";
+        item["skuImgUrl"] =
+          that.imgBaseUrl +
+          that.imgUrlParams +
+          item.goods_id +
+          "/sku/" +
+          "1000/" +
+          item.color_no +
+          ".jpg";
         item["inactive"] = res.inactive == "Y";
-        item["xiajia"] = !( res.approval == "LIST" || res.approval == "AUTOLIST");
+        item["xiajia"] = !(
+          res.approval == "LIST" || res.approval == "AUTOLIST"
+        );
         item["shouqin"] = res.hasStock != "Y";
         item["name"] = res.fullName;
         item["originPrice"] = res.originPrice;
@@ -334,11 +369,11 @@ export default {
     */
     // 获取用户登录信息
     getUserToken(res) {
-      console.log(res,"token------");
+      console.log(res, "token------");
     },
     // 网络状态
     getNetType(res) {
-      console.log(res,"net------");
+      console.log(res, "net------");
       this.netType = "wifi";
     },
     // 弹窗提示

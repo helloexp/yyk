@@ -11,12 +11,18 @@
     <div class="tuijianTitle">
       <div class="tjTitle">为你推荐</div>
       <div class="allReadCount">
-        <img src="@@/images/allcount.png" class="countImg">
-        <span class="countIntro">{{allReadCount | handleAllReadC}}人正在边看边买</span>
+        <img src="@@/images/allcount.png" class="countImg" />
+        <span class="countIntro">{{ allReadCount | handleAllReadC }}人正在边看边买</span>
       </div>
     </div>
     <div class="moiveList">
-      <div class="moiveTab" v-for="(item,index) in readBuyList" :key="index" :class="index == 0 ? 'firstTba' :''" @click="jumpDetail(item.vid, item.video)">
+      <div
+        class="moiveTab"
+        v-for="(item, index) in readBuyList"
+        :key="index"
+        :class="index == 0 ? 'firstTba' : ''"
+        @click="jumpDetail(item.vid, item.video)"
+      >
         <img v-lazy="item.cover" alt class="coverImg" />
         <div class="introsBox">
           <p class="moiveDate">{{ item.create_time | handleTime }}</p>
@@ -28,7 +34,7 @@
             </span>
             <span class="contrlbox">
               <span class="zan"></span>
-              <span class="count">{{Number(item.video_lnum)}}</span>
+              <span class="count">{{ Number(item.video_lnum) }}</span>
             </span>
           </p>
         </div>
@@ -41,7 +47,7 @@
 <script>
 import dayjs from "dayjs";
 import Loading from "../../components/LoadMore.vue";
-import { setTimeout } from 'timers';
+import { setTimeout } from "timers";
 export default {
   name: "readBuyList",
   data: function() {
@@ -51,14 +57,14 @@ export default {
           el: ".swiper-pagination"
         }
       },
-      readBuyList:[],
-      allReadCount:0,
+      readBuyList: [],
+      allReadCount: 0,
       bannerList: [],
       isShowLoadMore: false,
       noMoreVedio: false,
       isLoading: false,
       scrollTop: 0,
-      currentPage: 1 ,
+      currentPage: 1
     };
   },
   components: {
@@ -69,33 +75,33 @@ export default {
     async getMoreList() {
       let that = this;
       // 正在请求中不给请求，节流
-      if(!that.isLoading) {
+      if (!that.isLoading) {
         // 改为请求中
         that.isLoading = true;
         // 没有更多数据
-        if(that.noMoreVedio) {
+        if (that.noMoreVedio) {
           that.isShowLoadMore = false;
           return;
-        };
-        let params = {
-          page: that.currentPage,
         }
+        let params = {
+          page: that.currentPage
+        };
         let res = await that.$api.readBuy.readBuyList(params);
-        if(res && res.result == 0 && res.list.length > 0){
+        if (res && res.result == 0 && res.list.length > 0) {
           that.isShowLoadMore = false;
           that.readBuyList = that.readBuyList.concat(res.list);
-          if(that.readBuyList.length == res.total){
+          if (that.readBuyList.length == res.total) {
             that.noMoreVedio = true;
-          }else {
-            that.currentPage ++;
+          } else {
+            that.currentPage++;
           }
           // dom渲染完成，放开请求
           that.$nextTick(() => {
             setTimeout(() => {
-              that.isLoading = false
+              that.isLoading = false;
             }, 300);
           });
-        }else {
+        } else {
           that.isShowLoadMore = false;
           that.noMoreVedio = true;
         }
@@ -106,17 +112,17 @@ export default {
       let that = this;
       try {
         let params = {
-          page: that.currentPage,
+          page: that.currentPage
         };
         let res = await that.$api.readBuy.readBuyList(params);
-        if(res && res.result == 0 && res.list.length > 0){
+        if (res && res.result == 0 && res.list.length > 0) {
           // 总阅读量
           that.allReadCount = Number(res.video_total || 0);
           that.readBuyList = that.readBuyList.concat(res.list);
-          if(that.readBuyList.length == res.total){
+          if (that.readBuyList.length == res.total) {
             that.noMoreVedio = true;
-          }else {
-            that.currentPage ++;
+          } else {
+            that.currentPage++;
           }
         }
       } catch (e) {
@@ -124,51 +130,59 @@ export default {
       }
     },
     async getBannerData() {
-      try{
+      try {
         let res = await this.$api.readBuy.readBuyBanner();
-        if(res && res.result == 0 && res.list.length) {
+        if (res && res.result == 0 && res.list.length) {
           this.bannerList = res.list;
         }
-      }catch(e){
-        console.log(e)
+      } catch (e) {
+        console.log(e);
       }
     },
     // 监听滚动条监听
-    listScrollTop(){
+    listScrollTop() {
       let that = this;
-      window.onscroll=function(){
-        that.scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
-      }
+      window.onscroll = function() {
+        that.scrollTop =
+          document.documentElement.scrollTop || document.body.scrollTop;
+      };
     },
     jumpDetail(vid, vedio) {
-      this.$router.push({ path: "/readBuyDetail?vid=" + vid + "&vedio=" + vedio });
+      this.$router.push({
+        path: "/readBuyDetail?vid=" + vid + "&vedio=" + vedio
+      });
     },
     bannerJump(jumpurl) {
       let that = this;
       let vid = -1;
-      if(jumpurl) {
-        let strArr = jumpurl.split('?');
-        if(strArr.length >= 2) {
-          let arr = strArr[1].split('&');
-          if(arr.length >= 2) {
-            vid = arr[0].split('=')[1];
+      if (jumpurl) {
+        let strArr = jumpurl.split("?");
+        if (strArr.length >= 2) {
+          let arr = strArr[1].split("&");
+          if (arr.length >= 2) {
+            vid = arr[0].split("=")[1];
           }
         }
-        if(vid >= 0){
-          let idx = that.readBuyList.findIndex(item => {return item.vid == vid});
-          console.log(idx)
-          if(idx >= 0) {
-            that.jumpDetail(that.readBuyList[idx].vid, that.readBuyList[idx].video)
+        if (vid >= 0) {
+          let idx = that.readBuyList.findIndex(item => {
+            return item.vid == vid;
+          });
+          console.log(idx);
+          if (idx >= 0) {
+            that.jumpDetail(
+              that.readBuyList[idx].vid,
+              that.readBuyList[idx].video
+            );
           }
         }
       }
     }
   },
-  watch:{
+  watch: {
     scrollTop(val) {
       let that = this;
-      if(window.screen.availHeight + val == document.body.scrollHeight){
-        if(!that.noMoreVedio) {
+      if (window.screen.availHeight + val == document.body.scrollHeight) {
+        if (!that.noMoreVedio) {
           that.isShowLoadMore = true;
           that.getMoreList();
         }
@@ -180,28 +194,28 @@ export default {
     this.getBannerData();
     this.listScrollTop();
   },
-  filters:{
+  filters: {
     handleTime(val) {
-      let year = dayjs(val*1000).year();
-      let month = dayjs(val*1000).month();
-      let day = dayjs(val*1000).date();
+      let year = dayjs(val * 1000).year();
+      let month = dayjs(val * 1000).month();
+      let day = dayjs(val * 1000).date();
       //TODO 不知道为什么需要加一个月
-      let date = `${year}年${month+1}月${day}日`
+      let date = `${year}年${month + 1}月${day}日`;
       return date;
     },
     handleReadCount(val) {
-      if(val.length > 5) return `${parseInt(val/1000)}k`;
+      if (val.length > 5) return `${parseInt(val / 1000)}k`;
       return val;
     },
     handleAllReadC(val) {
-      if(val.length > 5) return `${parseFloat(val/10000).toFixed(1)}万`;
+      if (val.length > 5) return `${parseFloat(val / 10000).toFixed(1)}万`;
       return val;
     }
   }
 };
 </script>
 
-<style lang="less" >
+<style lang="less">
 @mgLook: "../../assets/images/look.png";
 @mgheart: "../../assets/images/blackheart.png";
 .wrapper {
@@ -216,14 +230,14 @@ export default {
 .moiveList {
   margin-top: 15px;
   padding: 0 20px;
-  
+
   .moiveTab {
     width: 335px;
     height: 105px;
     border: 1px solid #f3f3f3;
     display: flex;
     margin-top: 5px;
-    &.firstTba{
+    &.firstTba {
       margin-top: 0;
     }
     .coverImg {
@@ -278,21 +292,21 @@ export default {
     }
   }
 }
-.tuijianTitle{
+.tuijianTitle {
   margin-top: 13px;
   margin-bottom: 15px;
   display: flex;
-  justify-content:space-between;
+  justify-content: space-between;
   align-items: center;
   padding-left: 20px;
   padding-right: 20px;
-  .tjTitle{
+  .tjTitle {
     font-size: 18px;
     font-weight: bold;
   }
-  .allReadCount{
+  .allReadCount {
     font-family: "微软雅黑";
-    background-color: #E9E9E9;
+    background-color: #e9e9e9;
     display: flex;
     align-items: center;
     padding-right: 10px;
