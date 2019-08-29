@@ -7,7 +7,7 @@
  * text: 需要复制的文本
  * callback: 回调函数 返回布尔值 表明是否复制成功
  */
-function execCommandCopy (text, callback) {
+function execCommandCopy(text, callback) {
   var input = document.createElement("input");
   input.value = text;
   input.setAttribute("readonly", "");
@@ -22,9 +22,9 @@ function execCommandCopy (text, callback) {
 }
 
 /**
-     * 是否支持webp
-     */
-function checkWebpSupport () {
+ * 是否支持webp
+ */
+function checkWebpSupport() {
   var canvas = document.createElement('canvas');
   if ((canvas.getContext && canvas.getContext("2d"))) {
     return canvas.toDataURL("image/webp").indexOf("data:image/webp") === 0;
@@ -35,7 +35,7 @@ function checkWebpSupport () {
 /**
  * 图片尺寸重置
  */
-function resizeImage (url, width, height) {
+function resizeImage(url, width, height) {
   if (checkWebpSupport()) {
     if (!/\.40017\.cn/gi.test(url)) {
       return url;
@@ -57,7 +57,7 @@ function resizeImage (url, width, height) {
  * null => ''
  * @param {*} data 要处理的数据
  */
-function null2str (data) {
+function null2str(data) {
   for (let x in data) {
     if (data[x] === null) { // 如果是null 把直接内容转为 ''
       data[x] = '';
@@ -79,7 +79,7 @@ function null2str (data) {
 function isAndroid() {
   var u = navigator.userAgent;
   if (u.indexOf("Android") > -1 || u.indexOf("Linux") > -1) {
-      if (window.ShowFitness !== undefined) return true;
+    if (window.ShowFitness !== undefined) return true;
   }
   return false;
 }
@@ -88,7 +88,7 @@ function isAndroid() {
 function isIos() {
   var u = navigator.userAgent;
   if (u.indexOf("iPhone") > -1 || u.indexOf("iOS") > -1) {
-      return true;
+    return true;
   }
   return false;
 }

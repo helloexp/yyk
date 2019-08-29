@@ -146,6 +146,7 @@
 </template>
 <script>
 import Confirm from "@/components/confirmToast.vue";
+import _utils from "@/utils/utils.js";
 export default {
   data() {
     return {
@@ -167,7 +168,10 @@ export default {
       imgBaseUrl: "",
       imgUrlParams: "",
       userInfo: {},
-      netType: ""
+      netType: "",
+      isAndroid: _utils.isAndroid(),
+      isIos: _utils.isIos(),
+      userToken: ""
     };
   },
   components: {
@@ -211,17 +215,15 @@ export default {
     this.getReadBuyDetail();
     // this.$loading(true);
 
-    // getUserToken
+    // getUserToken 获取登陆后的用户信息
     window["getUserToken"] = result => {
       this.getUserToken(result);
     };
     window["getNetType"] = result => {
       this.getNetType(res);
     };
-    this.showConfrim(
-      "检测到你的网络非WIFI，请确认非WIFI环境是否自动播放视频",
-      "net"
-    );
+    // 唤醒app
+    this.callPhoneApp();
   },
   methods: {
     // 视频组件
@@ -288,29 +290,46 @@ export default {
     likeVedio() {
       // this.$toast(this.vedioId);
       let that = this;
-      // 判断是否登录
-
-      // 一次没有点时开始计时，两秒复位一次，超过两次说明，两秒内点击次数过多，直接return
-      if (!that.zanCtrl.canClick) return;
-      if (!that.zanCtrl.clickCount) {
-        setTimeout(() => {
-          that.zanCtrl.clickCount = 0;
-          that.zanCtrl.canClick = true;
-        }, 2000);
-      }
-      that.zanCtrl.clickCount++;
-      if (that.zanCtrl.clickCount > 2) {
-        that.$toast("点赞过于频繁");
-        that.zanCtrl.canClick = false;
-        return;
-      }
-      if (that.otherInfo.isLike) {
-        // 请求接口取消点赞
-
-        that.otherInfo.isLike = false;
+      // 判断是否登录,登陆原生返回登陆信息，没登录返回需要登陆信息
+      if (sessionStorage.getItem("userInfo")) {
+        // 一次没有点时开始计时，两秒复位一次，超过两次说明，两秒内点击次数过多，直接return
+        if (!that.zanCtrl.canClick) return;
+        if (!that.zanCtrl.clickCount) {
+          setTimeout(() => {
+            that.zanCtrl.clickCount = 0;
+            that.zanCtrl.canClick = true;
+          }, 2000);
+        }
+        that.zanCtrl.clickCount++;
+        if (that.zanCtrl.clickCount > 2) {
+          that.$toast("点赞过于频繁");
+          that.zanCtrl.canClick = false;
+          return;
+        }
+        if (that.otherInfo.isLike) {
+          // 请求接口取消点赞
+          let data = {
+            like: 2,
+            code: ""
+          };
+          let res = that.dianZan(data);
+          if (res && res.result == 0) {
+            that.otherInfo.isLike = false;
+          }
+        } else {
+          // 点赞
+          let data = {
+            like: 1,
+            code: ""
+          };
+          let res = that.dianZan(data);
+          if (res && res.result == 0) {
+            that.otherInfo.isLike = true;
+          }
+        }
       } else {
-        // 点赞
-        that.otherInfo.isLike = true;
+        // 发起登陆请求
+        that.showConfrim("你暂时还未登陆，请登陆后点赞", "zan");
       }
     },
     // 视频切换
@@ -364,12 +383,31 @@ export default {
         console.log(e);
       }
     },
+    async dianZan(data) {
+      let that = this;
+      try {
+        let params = {
+          like: data.like,
+          code: ""
+        };
+        let res = await that.$$api.readBuy.readBuyLike(params);
+        return res;
+      } catch (e) {
+        console.log(e);
+      }
+    },
     /*
       原生交互方法
     */
     // 获取用户登录信息
     getUserToken(res) {
       console.log(res, "token------");
+      if (res) {
+        // 登陆了直接存
+        sessionStorage.setItem("userInfo", res);
+      } else {
+        // 没登录暂时不知道怎么操作
+      }
     },
     // 网络状态
     getNetType(res) {
@@ -382,9 +420,19 @@ export default {
         titleText: "自动播放视频？",
         cancelText: "不播放",
         confirmText: "自动播放",
-        data: "net"
+        data: type
       };
-      this.$refs.confirmToast.show(content, netConfig);
+      let zanConfig = {
+        titleText: "是否登陆",
+        cancelText: "不登录",
+        confirmText: "去登陆",
+        data: type
+      };
+      if (type == "net") {
+        this.$refs.confirmToast.show(content, netConfig);
+      } else {
+        this.$refs.confirmToast.show(content, zanConfig);
+      }
     },
     // 点击弹窗操作处理
     toastType(type, data) {
@@ -393,6 +441,44 @@ export default {
         if (type == "clickConfirm") {
           that.startVedio();
         }
+      }
+      if (data == "zan") {
+        if (type == "clickConfirm") {
+          that.callAppToken();
+        }
+      }
+    },
+    // 唤醒app监听网络
+    callPhoneApp() {
+      if (this.isIos) {
+        window.webkit.messageHandlers.startListenNet.postMessage();
+      } else if (this.isAndroid) {
+      }
+      // 唤醒的时候进行赋值
+      let token = document.cookie ? document.cookie.split("=")[1] : "";
+      if (token) {
+        sessionStorage.setItem("userInfo", token);
+      }
+    },
+    // 发起跳转原生登陆请求
+    callAppToken() {
+      if (this.isIos) {
+        window.webkit.messageHandlers.userLogin.postMessage();
+      } else if (this.isAndroid) {
+      }
+    },
+    // 发起跳转原生的页面
+    callAppJump() {
+      if (this.isIos) {
+        window.webkit.messageHandlers.pageJump.postMessage();
+      } else if (this.isAndroid) {
+      }
+    },
+    // 发起分享请求
+    callAppShare() {
+      if (this.isIos) {
+        window.webkit.messageHandlers.shareWX.postMessage();
+      } else if (this.isAndroid) {
       }
     }
   }

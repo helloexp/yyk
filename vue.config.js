@@ -7,7 +7,7 @@ module.exports = {
     proxy: {
       '/api': {
         target: 'https://event.uniqlo.cn/uniqlo_new_cms',
-        ws: true,  
+        ws: true,
         changeOrigin: true,
         pathRewrite: {
           '^/api': ''
@@ -40,23 +40,23 @@ module.exports = {
       let optimization = {
         splitChunks: {
           cacheGroups: {
-            vendor:{
-              chunks:"all",
-                  test: /node_modules/,
-                  name:"vendor",
-                  minChunks: 1,
-                  maxInitialRequests: 5,
-                  minSize: 0,
-                  priority:100,
+            vendor: {
+              chunks: "all",
+              test: /node_modules/,
+              name: "vendor",
+              minChunks: 1,
+              maxInitialRequests: 5,
+              minSize: 0,
+              priority: 100,
             },
             common: {
-              chunks:"all",
-              test:/[\\/]src[\\/]js[\\/]/,
+              chunks: "all",
+              test: /[\\/]src[\\/]js[\\/]/,
               name: "common",
               minChunks: 2,
               maxInitialRequests: 5,
               minSize: 0,
-              priority:60
+              priority: 60
             },
             styles: {
               name: 'styles',
@@ -70,7 +70,7 @@ module.exports = {
           }
         }
       }
-      Object.assign(config,{
+      Object.assign(config, {
         optimization
       });
     }
@@ -90,7 +90,7 @@ module.exports = {
       postcss: {
         plugins: [
           // px单位转为rem单位，移动端等比缩放适配
-          require('postcss-px2rem')({ 
+          require('postcss-px2rem')({
             remUnit: 37.5
           })
         ]
@@ -104,13 +104,15 @@ module.exports = {
   },
   // 生产环境生产sm文件,会在source下面生成一个webpack文件里面src是vue源码
   productionSourceMap: true,
-  chainWebpack:config => {
+  chainWebpack: config => {
     const types = ['vue-modules', 'vue', 'normal-modules', 'normal']
     types.forEach(type => addStyleResource(config.module.rule('less').oneOf(type))) // 全局引用less文件
   },
+  parallel: require('os').cpus().length > 1,
+  lintOnSave: true
 }
 // 全局导入less基础样式
-function addStyleResource (rule) {
+function addStyleResource(rule) {
   rule
     .use('style-resource')
     .loader('style-resources-loader')
