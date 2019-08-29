@@ -220,7 +220,7 @@ export default {
       this.getUserToken(result);
     };
     window["getNetType"] = result => {
-      this.getNetType(res);
+      this.getNetType(result);
     };
     // 唤醒app
     this.callPhoneApp();
@@ -453,6 +453,7 @@ export default {
       if (this.isIos) {
         window.webkit.messageHandlers.startListenNet.postMessage();
       } else if (this.isAndroid) {
+        window.youyiku.startListenNet();
       }
       // 唤醒的时候进行赋值
       let token = document.cookie ? document.cookie.split("=")[1] : "";
@@ -465,6 +466,7 @@ export default {
       if (this.isIos) {
         window.webkit.messageHandlers.userLogin.postMessage();
       } else if (this.isAndroid) {
+        window.youyiku.userLogin();
       }
     },
     // 发起跳转原生的页面
@@ -472,6 +474,7 @@ export default {
       if (this.isIos) {
         window.webkit.messageHandlers.pageJump.postMessage();
       } else if (this.isAndroid) {
+        window.youyiku.pageJump();
       }
     },
     // 发起分享请求
@@ -479,6 +482,7 @@ export default {
       if (this.isIos) {
         window.webkit.messageHandlers.shareWX.postMessage();
       } else if (this.isAndroid) {
+        window.youyiku.shareWX();
       }
     }
   }
