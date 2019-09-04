@@ -1,12 +1,26 @@
 const path = require('path');
-const debug = process.env.NODE_ENV !== 'production'
+const debug = process.env.NODE_ENV !== 'production';
+const proxyObj = {
+  sit: {
+    api: 'https://test-event.uniqlo.cn/uniqlo_new_cms',
+    image: 'https://pictest.uniqlo.cn/uniqlo'
+  },
+  uat: {
+    api: 'https://test-event.uniqlo.cn/uniqlo_uat_cms',
+    image: 'https://uatpic.uniqlo.cn/uniqlo'
+  },
+  production: {
+    api: 'https://event.uniqlo.cn/uniqlo_new_cms',
+    image: 'https://www.uniqlo.cn'
+  },
+}
 module.exports = {
   // 设置打包文件相对路径
   publicPath: './',
   devServer: {
     proxy: {
       '/api': {
-        target: 'https://event.uniqlo.cn/uniqlo_new_cms',
+        target: proxyObj.sit.api,
         ws: true,
         changeOrigin: true,
         pathRewrite: {
@@ -14,7 +28,7 @@ module.exports = {
         }
       },
       '/imgapi': {
-        target: 'https://www.uniqlo.cn',
+        target: proxyObj.sit.image,
         ws: true,
         changeOrigin: true,
         pathRewrite: {

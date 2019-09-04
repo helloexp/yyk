@@ -10,6 +10,11 @@ let service = axios.create({
 service.interceptors.request.use(
   (config) => {
     if (config.method === 'post' || config.method === 'put') {
+      console.log(config)
+      console.log(sessionStorage.getItem('sid'));
+      if(config.url == "/api/api/watch/videoDetail") {
+        config.headers['sid'] = sessionStorage.getItem('sid');
+      }
       // post、put 提交时，将对象转换为string, 为处理Java后台解析问题
       // console.log(config)
       // config.data = qs.stringify(config.data);

@@ -35,9 +35,9 @@ Vue.use(VueLazyload, {
   attempt: 1
 });
 // 移动端调试
-import vconsole from "vconsole";
-let vConsole = new vconsole();
-export default vConsole;
+// import vconsole from "vconsole";
+// let vConsole = new vconsole();
+// export default vConsole;
 
 
 router.beforeEach((to, from, next) => {

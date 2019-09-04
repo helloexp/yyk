@@ -124,7 +124,12 @@
         <div class="newBox">
           <div v-for="(item, idx) in moreVD" :key="idx">
             <div class="oneImg" v-if="item.type == 1">
-              <img v-for="(_item, _idx) in item.img_list" :key="_idx" :src="_item.img_url" />
+              <img
+                v-for="(_item, _idx) in item.img_list"
+                :key="_idx"
+                :src="_item.img_url"
+                @click="callAppJump(_item.type,_item.title,_item.content)"
+              />
             </div>
             <div class="twoImg" v-else :class="{ 'lastImg': idx == moreVD.length - 1 }">
               <div
@@ -134,6 +139,7 @@
                 :style="{background:'url(' + _item.img_url + ') no-repeat',
               'background-size':'cover',
               'background-position': 'center 0'}"
+                @click="callAppJump(_item.type,_item.title,_item.content)"
               ></div>
             </div>
           </div>
@@ -223,7 +229,14 @@ export default {
       this.getNetType(result);
     };
     // 唤醒app
-    this.callPhoneApp();
+    try {
+      this.callPhoneApp();
+    } catch (e) {
+      console.log(e);
+    }
+    if (_utils.getCookie("sid")) {
+      sessionStorage.setItem("sid", _utils.getCookie("sid"));
+    }
   },
   methods: {
     // 视频组件
@@ -243,8 +256,7 @@ export default {
       let that = this;
       try {
         let params = {
-          vid: that.vid,
-          code: ""
+          vid: that.vid
         };
         let res = await this.$api.readBuy.readBuyDetail(params);
         if (res && res.result == 0) {
@@ -291,7 +303,7 @@ export default {
       // this.$toast(this.vedioId);
       let that = this;
       // 判断是否登录,登陆原生返回登陆信息，没登录返回需要登陆信息
-      if (sessionStorage.getItem("userInfo")) {
+      if (sessionStorage.getItem("sid")) {
         // 一次没有点时开始计时，两秒复位一次，超过两次说明，两秒内点击次数过多，直接return
         if (!that.zanCtrl.canClick) return;
         if (!that.zanCtrl.clickCount) {
@@ -306,26 +318,18 @@ export default {
           that.zanCtrl.canClick = false;
           return;
         }
-        if (that.otherInfo.isLike) {
-          // 请求接口取消点赞
-          let data = {
-            like: 2,
-            code: ""
-          };
-          let res = that.dianZan(data);
-          if (res && res.result == 0) {
-            that.otherInfo.isLike = false;
-          }
+        let data = {
+          like: 1,
+          vid: that.vid
+        };
+        if (!that.otherInfo.isLike) {
+          data["like"] = 2;
+        }
+        let res = that.dianZan(data);
+        if (res && res.result == 0) {
+          that.otherInfo.isLike = !that.otherInfo.isLike;
         } else {
-          // 点赞
-          let data = {
-            like: 1,
-            code: ""
-          };
-          let res = that.dianZan(data);
-          if (res && res.result == 0) {
-            that.otherInfo.isLike = true;
-          }
+          that.$toast("点赞失败");
         }
       } else {
         // 发起登陆请求
@@ -386,11 +390,7 @@ export default {
     async dianZan(data) {
       let that = this;
       try {
-        let params = {
-          like: data.like,
-          code: ""
-        };
-        let res = await that.$$api.readBuy.readBuyLike(params);
+        let res = await that.$api.readBuy.readBuyLike(data);
         return res;
       } catch (e) {
         console.log(e);
@@ -404,9 +404,11 @@ export default {
       console.log(res, "token------");
       if (res) {
         // 登陆了直接存
-        sessionStorage.setItem("userInfo", res);
+        sessionStorage.setItem("sid", res.sid);
+        this.likeVedio();
       } else {
         // 没登录暂时不知道怎么操作
+        that.$toast("登录失败");
       }
     },
     // 网络状态
@@ -451,38 +453,40 @@ export default {
     // 唤醒app监听网络
     callPhoneApp() {
       if (this.isIos) {
-        window.webkit.messageHandlers.startListenNet.postMessage();
+        window.webkit.messageHandlers.bkStartListenNet.postMessage();
       } else if (this.isAndroid) {
-        window.youyiku.startListenNet();
-      }
-      // 唤醒的时候进行赋值
-      let token = document.cookie ? document.cookie.split("=")[1] : "";
-      if (token) {
-        sessionStorage.setItem("userInfo", token);
+        window.youyiku.bkStartListenNet();
       }
     },
     // 发起跳转原生登陆请求
     callAppToken() {
       if (this.isIos) {
-        window.webkit.messageHandlers.userLogin.postMessage();
+        window.webkit.messageHandlers.bkUserLogin.postMessage();
       } else if (this.isAndroid) {
-        window.youyiku.userLogin();
+        window.youyiku.bkUserLogin();
       }
     },
     // 发起跳转原生的页面
-    callAppJump() {
+    callAppJump(type, content, title) {
+      let that = this;
+      let params = {
+        type: type,
+        content: content,
+        title: title
+      };
       if (this.isIos) {
-        window.webkit.messageHandlers.pageJump.postMessage();
+        window.webkit.messageHandlers.bkPageJump.postMessage(params);
       } else if (this.isAndroid) {
-        window.youyiku.pageJump();
+        window.youyiku.bkPageJump(params);
       }
     },
     // 发起分享请求
     callAppShare() {
+      let params;
       if (this.isIos) {
-        window.webkit.messageHandlers.shareWX.postMessage();
+        window.webkit.messageHandlers.bkShareWX.postMessage();
       } else if (this.isAndroid) {
-        window.youyiku.shareWX();
+        window.youyiku.bkShareWX();
       }
     }
   }
