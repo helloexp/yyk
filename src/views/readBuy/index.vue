@@ -27,7 +27,11 @@
     </div>
     <div class="vedioPop" v-if="isShowVedioPop">
       <p class="tuijian">为您推荐</p>
-      <img class="midContent" v-lazy="allDetailData.cover" />
+      <img
+        class="midContent"
+        v-lazy="allDetailData.cover"
+        @click="callAppJump(allDetailData.type,allDetailData.share_title,allDetailData.content)"
+      />
       <!-- <img src="" class="leftImg">
         <div class="rightIntros">
           <p class="rightIntroTitle">棉质休闲圆领T恤(长袖)</p>
@@ -50,12 +54,20 @@
               :key="idx"
             >
               <div class="saleOutPop">售罄</div>
-              <img class="classImg" v-lazy="{src: item.mfImgUrl, error: item.skuImgUrl}" />
+              <img
+                class="classImg"
+                v-lazy="{src: item.mfImgUrl, error: item.skuImgUrl}"
+                @click="callAppJump(56,item.goods_id,item.keyword)"
+              />
               <p class="classTitle">{{item.name}}</p>
               <!-- <p class="classId">{{item.pnum}}</p> -->
               <p class="classPrice">
                 <span class="yprice">￥{{item.originPrice}}</span>
-                <span class="findSame" v-if="item.inactive || item.xiajia || item.shouqin">找相似</span>
+                <span
+                  class="findSame"
+                  v-if="item.inactive || item.xiajia || item.shouqin"
+                  @click="callAppJump(54,item.goods_id,item.keyword)"
+                >找相似</span>
                 <span class="joinShop" v-else></span>
               </p>
             </div>
@@ -452,41 +464,63 @@ export default {
     },
     // 唤醒app监听网络
     callPhoneApp() {
-      if (this.isIos) {
-        window.webkit.messageHandlers.bkStartListenNet.postMessage();
-      } else if (this.isAndroid) {
-        window.youyiku.bkStartListenNet();
+      try {
+        if (this.isIos) {
+          window.webkit.messageHandlers.bkStartListenNet.postMessage();
+        } else if (this.isAndroid) {
+          window.uniqlo.bkStartListenNet();
+        }
+      } catch (e) {
+        console.warn("原生方法调用");
       }
     },
     // 发起跳转原生登陆请求
     callAppToken() {
-      if (this.isIos) {
-        window.webkit.messageHandlers.bkUserLogin.postMessage();
-      } else if (this.isAndroid) {
-        window.youyiku.bkUserLogin();
+      try {
+        if (this.isIos) {
+          window.webkit.messageHandlers.bkUserLogin.postMessage();
+        } else if (this.isAndroid) {
+          window.uniqlo.bkUserLogin();
+        }
+      } catch (e) {
+        console.warn("原生方法调用");
       }
     },
     // 发起跳转原生的页面
     callAppJump(type, content, title) {
-      let that = this;
-      let params = {
-        type: type,
-        content: content,
-        title: title
-      };
-      if (this.isIos) {
-        window.webkit.messageHandlers.bkPageJump.postMessage(params);
-      } else if (this.isAndroid) {
-        window.youyiku.bkPageJump(params);
+      try {
+        let that = this;
+        let params = {
+          type: type,
+          content: content,
+          title: title
+        };
+        if (this.isIos) {
+          window.webkit.messageHandlers.bkPageJump.postMessage(params);
+        } else if (this.isAndroid) {
+          window.uniqlo.bkPageJump(params);
+        }
+      } catch (e) {
+        console.warn("原生方法调用");
       }
     },
     // 发起分享请求
     callAppShare() {
-      let params;
-      if (this.isIos) {
-        window.webkit.messageHandlers.bkShareWX.postMessage();
-      } else if (this.isAndroid) {
-        window.youyiku.bkShareWX();
+      let that = this;
+      try {
+        let params = {
+          shareImg: that.allDetailData.share_friend_img,
+          shareUrl: "", // h5地址
+          shareCon: that.allDetailData.share_title,
+          shareMini: `activity/pages/videoDetail/videoDetail?vid=${that.vid}&channel=xxx` //TODO小程序地址
+        };
+        if (that.isIos) {
+          window.webkit.messageHandlers.bkShareWX.postMessage(params);
+        } else if (that.isAndroid) {
+          window.uniqlo.bkShareWX(params);
+        }
+      } catch (e) {
+        console.warn("原生方法调用");
       }
     }
   }
