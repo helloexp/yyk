@@ -1,7 +1,9 @@
 import axios from 'axios'
 // 创建 axios 实例
 let service = axios.create({
-  headers: {'Content-Type': 'application/json'},
+  headers: {
+    'Content-Type': 'application/json'
+  },
   timeout: 60000
 })
 
@@ -10,9 +12,9 @@ let service = axios.create({
 service.interceptors.request.use(
   (config) => {
     if (config.method === 'post' || config.method === 'put') {
-      console.log(config)
-      console.log(sessionStorage.getItem('sid'));
-      if(config.url == "/api/api/watch/videoDetail") {
+      console.warn(sessionStorage.getItem('sid'), '点赞id');
+      console.warn(config.url.indexOf("likeH5") > -1, "sssssss")
+      if (config.url == "/api/api/watch/videoDetailH5" || config.url.indexOf("likeH5") > -1) {
         config.headers['sid'] = sessionStorage.getItem('sid');
       }
       // post、put 提交时，将对象转换为string, 为处理Java后台解析问题
@@ -31,12 +33,18 @@ service.interceptors.request.use(
 // 添加响应拦截器
 service.interceptors.response.use(
   (response) => {
-    let { data } = response
+    let {
+      data
+    } = response
     return data
   },
   (error) => {
     let info = {},
-      { status, statusText, data } = error.response
+      {
+        status,
+        statusText,
+        data
+      } = error.response
 
     if (!error.response) {
       info = {
@@ -58,6 +66,6 @@ service.interceptors.response.use(
  * 创建统一封装过的 axios 实例
  * @return {AxiosInstance}
  */
-export default function() {
+export default function () {
   return service;
 }

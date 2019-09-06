@@ -15,7 +15,7 @@
               <span class="zanCount">{{otherInfo.likeC}}</span>
             </div>
             <span class="line"></span>
-            <span class="share"></span>
+            <span class="share" @click="callAppShare"></span>
           </div>
           <p class="rightRead">
             <!-- <span class="read"></span> -->
@@ -140,7 +140,7 @@
                 v-for="(_item, _idx) in item.img_list"
                 :key="_idx"
                 :src="_item.img_url"
-                @click="callAppJump(_item.type,_item.title,_item.content)"
+                @click="callAppJump(_item.type,_item.content,_item.title)"
               />
             </div>
             <div class="twoImg" v-else :class="{ 'lastImg': idx == moreVD.length - 1 }">
@@ -151,7 +151,7 @@
                 :style="{background:'url(' + _item.img_url + ') no-repeat',
               'background-size':'cover',
               'background-position': 'center 0'}"
-                @click="callAppJump(_item.type,_item.title,_item.content)"
+                @click="callAppJump(_item.type,_item.content,_item.title)"
               ></div>
             </div>
           </div>
@@ -176,7 +176,11 @@ export default {
       moreVD: [],
       sameVD: [],
       VDList: [],
-      otherInfo: {},
+      otherInfo: {
+        isLike: false,
+        likeC: 0,
+        watchC: 0
+      },
       allDetailData: {},
       isWifi: false,
       zanCtrl: {
@@ -186,8 +190,9 @@ export default {
       imgBaseUrl: "",
       imgUrlParams: "",
       userInfo: {},
-      netType: "",
+      // netType: "",
       isAndroid: _utils.isAndroid(),
+      // isAndroid: true,
       isIos: _utils.isIos(),
       userToken: ""
     };
@@ -197,23 +202,25 @@ export default {
   },
   watch: {
     vedioStatus(val) {
+      console.warn(`播放状态发生改变`);
       if (val == 0) {
         this.isShowVedioPop = true;
       }
-    },
-    netType(val) {
-      let that = this;
-      if (val == "4g") {
-        that.showConfrim(
-          "检测到你的网络非WIFI，请确认非WIFI环境是否自动播放视频",
-          "net"
-        );
-      } else if (val == "wifi") {
-        that.startVedio();
-        that.$refs.confirmToast.hidden();
-      } else {
-      }
     }
+    // netType(val) {
+    //   let that = this;
+    //   if (val == "4g") {
+    //     that.showConfrim(
+    //       "检测到你的网络非WIFI，请确认非WIFI环境是否自动播放视频",
+    //       "net"
+    //     );
+    //   } else if (val == "wifi") {
+    //     that.$refs.confirmToast.hidden();
+    //     console.warn(`wifi,播放视频${val}`)
+    //     that.startVedio();
+    //   } else {
+    //   }
+    // }
   },
   created() {
     // console.log(process.env.VUE_APP_IMGBASE,'VUE_APP_IMGBASE');
@@ -229,7 +236,6 @@ export default {
     // 初始化视频组件
     this.initVideo();
     // 获取原生返回的网络状态，根据网络状态控制视频播放
-    // this.startVedio();
     this.getReadBuyDetail();
     // this.$loading(true);
 
@@ -240,12 +246,13 @@ export default {
     window["getNetType"] = result => {
       this.getNetType(result);
     };
-    // 唤醒app
+    // 唤醒app开始监听网络
     try {
       this.callPhoneApp();
     } catch (e) {
       console.log(e);
     }
+    console.warn(`页面加载时sid：${_utils.getCookie("sid")}`);
     if (_utils.getCookie("sid")) {
       sessionStorage.setItem("sid", _utils.getCookie("sid"));
     }
@@ -260,6 +267,7 @@ export default {
         height: "275px"
       });
       this.player.on("playStateChange", function(res) {
+        console.warn("播放状态发生改变");
         that.vedioStatus = res;
       });
     },
@@ -303,8 +311,9 @@ export default {
     },
     // 播放
     startVedio() {
-      this.player.play();
       this.isShowVedioPop = false;
+      console.warn(`播放进来了${this.player}`);
+      this.player.play();
     },
     // 暂停
     pauseVedio() {
@@ -313,6 +322,7 @@ export default {
     // 点赞
     likeVedio() {
       // this.$toast(this.vedioId);
+      console.warn(`点赞时sid${sessionStorage.getItem("sid")}`);
       let that = this;
       // 判断是否登录,登陆原生返回登陆信息，没登录返回需要登陆信息
       if (sessionStorage.getItem("sid")) {
@@ -334,11 +344,17 @@ export default {
           like: 1,
           vid: that.vid
         };
-        if (!that.otherInfo.isLike) {
+        // islike： 0未点赞 1点赞了,给接口的参数like： 1点赞 2取消点赞
+        if (that.otherInfo.isLike) {
           data["like"] = 2;
         }
         let res = that.dianZan(data);
-        if (res && res.result == 0) {
+        if (res) {
+          if (that.otherInfo.isLike) {
+            that.otherInfo.likeC++;
+          } else {
+            that.otherInfo.likeC--;
+          }
           that.otherInfo.isLike = !that.otherInfo.isLike;
         } else {
           that.$toast("点赞失败");
@@ -362,6 +378,7 @@ export default {
       });
       list.forEach(async (item, idx) => {
         let res = await that.sameVedioData(item.goods_id);
+        if (!res) return;
         item["mfImgUrl"] =
           that.imgBaseUrl +
           that.imgUrlParams +
@@ -403,7 +420,12 @@ export default {
       let that = this;
       try {
         let res = await that.$api.readBuy.readBuyLike(data);
-        return res;
+        console.log(res, "ssssss");
+        if (res && res.result == 0) {
+          return true;
+        } else {
+          return false;
+        }
       } catch (e) {
         console.log(e);
       }
@@ -413,10 +435,10 @@ export default {
     */
     // 获取用户登录信息
     getUserToken(res) {
-      console.log(res, "token------");
+      console.warn(res, "token------");
       if (res) {
         // 登陆了直接存
-        sessionStorage.setItem("sid", res.sid);
+        sessionStorage.setItem("sid", res);
         this.likeVedio();
       } else {
         // 没登录暂时不知道怎么操作
@@ -425,8 +447,22 @@ export default {
     },
     // 网络状态
     getNetType(res) {
-      console.log(res, "net------");
-      this.netType = "wifi";
+      let that = this;
+      console.warn(res, "-----网络状态");
+      if (res == "4g") {
+        that.showConfrim(
+          "检测到你的网络非WIFI，请确认非WIFI环境是否自动播放视频",
+          "net"
+        );
+      } else if (res == "wifi") {
+        that.$refs.confirmToast.hidden();
+        that.$nextTick(() => {
+          setTimeout(() => {
+            that.player.play();
+          }, 1000);
+        });
+      } else {
+      }
     },
     // 弹窗提示
     showConfrim(content, type) {
@@ -464,11 +500,12 @@ export default {
     },
     // 唤醒app监听网络
     callPhoneApp() {
+      // console.warn(`调取原生方法callphoneApp${navigator.userAgent}，22222222`)
       try {
         if (this.isIos) {
-          window.webkit.messageHandlers.bkStartListenNet.postMessage();
+          window.webkit.messageHandlers.bkStartListenNet.postMessage("");
         } else if (this.isAndroid) {
-          window.uniqlo.bkStartListenNet();
+          window.android.bkStartListenNet();
         }
       } catch (e) {
         console.warn("原生方法调用");
@@ -478,9 +515,9 @@ export default {
     callAppToken() {
       try {
         if (this.isIos) {
-          window.webkit.messageHandlers.bkUserLogin.postMessage();
+          window.webkit.messageHandlers.bkUserLogin.postMessage("");
         } else if (this.isAndroid) {
-          window.uniqlo.bkUserLogin();
+          window.android.bkUserLogin();
         }
       } catch (e) {
         console.warn("原生方法调用");
@@ -498,7 +535,7 @@ export default {
         if (this.isIos) {
           window.webkit.messageHandlers.bkPageJump.postMessage(params);
         } else if (this.isAndroid) {
-          window.uniqlo.bkPageJump(params);
+          window.android.bkPageJump(content, title, type);
         }
       } catch (e) {
         console.warn("原生方法调用");
@@ -510,14 +547,19 @@ export default {
       try {
         let params = {
           shareImg: that.allDetailData.share_friend_img,
-          shareUrl: "", // h5地址
+          shareUrl: "qwe", // h5地址
           shareCon: that.allDetailData.share_title,
           shareMini: `activity/pages/videoDetail/videoDetail?vid=${that.vid}&channel=xxx` //TODO小程序地址
         };
         if (that.isIos) {
           window.webkit.messageHandlers.bkShareWX.postMessage(params);
         } else if (that.isAndroid) {
-          window.uniqlo.bkShareWX(params);
+          window.android.bkShareWX(
+            params.shareImg,
+            params.shareUrl,
+            params.shareCon,
+            params.shareMini
+          );
         }
       } catch (e) {
         console.warn("原生方法调用");

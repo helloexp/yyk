@@ -77,29 +77,26 @@ function null2str(data) {
 
 // 判断安卓
 function isAndroid() {
-  var u = navigator.userAgent;
-  if (u.indexOf("Android") > -1 || u.indexOf("Linux") > -1) {
-    if (window.ShowFitness !== undefined) return true;
-  }
-  return false;
+  let u = navigator.userAgent;
+  let android = u.indexOf('Android') > -1 || u.indexOf('Adr') > -1; //android终端
+  return android
 }
 
 // 判断设备为 ios
 function isIos() {
-  var u = navigator.userAgent;
-  if (u.indexOf("iPhone") > -1 || u.indexOf("iOS") > -1) {
-    return true;
-  }
-  return false;
+  let u = navigator.userAgent;
+  let iOs = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/); //ios终端\
+  return iOs;
 }
 
+// 设置cookie
 function setCookie(c_name, value, expire) {
   var date = new Date()
   date.setSeconds(date.getSeconds() + expire)
   document.cookie = c_name + "=" + escape(value) + "; expires=" + date.toGMTString()
   //console.log(document.cookie)
 }
-
+// 获取cookie
 function getCookie(c_name) {
   if (document.cookie.length > 0) {
     let c_start = document.cookie.indexOf(c_name + "=")
@@ -112,6 +109,7 @@ function getCookie(c_name) {
   }
   return ""
 }
+
 export default {
   execCommandCopy,
   resizeImage,
