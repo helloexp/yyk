@@ -12,9 +12,9 @@ let service = axios.create({
 service.interceptors.request.use(
   (config) => {
     if (config.method === 'post' || config.method === 'put') {
-      console.warn(sessionStorage.getItem('sid'), '点赞id');
+      console.warn(sessionStorage.getItem('sid'), 'sid');
       console.warn(config.url.indexOf("likeH5") > -1, "sssssss")
-      if (config.url == "/api/api/watch/videoDetailH5" || config.url.indexOf("likeH5") > -1) {
+      if (config.url.indexOf("videoDetailH5") > -1 || config.url.indexOf("likeH5") > -1) {
         config.headers['sid'] = sessionStorage.getItem('sid');
       }
       // post、put 提交时，将对象转换为string, 为处理Java后台解析问题

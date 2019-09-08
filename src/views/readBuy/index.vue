@@ -230,8 +230,15 @@ export default {
     // 不同环境下的图片域名
     // this.imgBaseUrl = process.env.VUE_APP_IMGBASE;
     this.imgBaseUrl = "https://www.uniqlo.cn";
+    console.warn(`页面加载时createdsid：${_utils.getCookie("sid")}`);
+    if (_utils.getCookie("sid")) {
+      sessionStorage.setItem("sid", _utils.getCookie("sid"));
+    } else {
+      sessionStorage.setItem("sid", "");
+    }
   },
   mounted() {
+    console.warn(`页面加载时mountedsid：${_utils.getCookie("sid")}`);
     this.getImgParams();
     // 初始化视频组件
     this.initVideo();
@@ -252,21 +259,17 @@ export default {
     } catch (e) {
       console.log(e);
     }
-    console.warn(`页面加载时sid：${_utils.getCookie("sid")}`);
-    if (_utils.getCookie("sid")) {
-      sessionStorage.setItem("sid", _utils.getCookie("sid"));
-    }
   },
   methods: {
     // 视频组件
     initVideo() {
       let that = this;
-      this.player = new Txp.Player({
+      that.player = new Txp.Player({
         containerId: "container",
         vid: that.vedioId,
         height: "275px"
       });
-      this.player.on("playStateChange", function(res) {
+      that.player.on("playStateChange", function(res) {
         console.warn("播放状态发生改变");
         that.vedioStatus = res;
       });
@@ -459,6 +462,7 @@ export default {
         that.$nextTick(() => {
           setTimeout(() => {
             that.player.play();
+            that.player.setFullScreen(false);
           }, 1000);
         });
       } else {
