@@ -2,6 +2,24 @@
   <div class="mianContent">
     <div class="vedioBox">
       <div id="container"></div>
+    </div>
+    <div class="vedioPop" v-if="isShowVedioPop">
+      <p class="tuijian">为您推荐</p>
+      <img
+        class="midContent"
+        v-lazy="allDetailData.cover"
+        @click="callAppJump(allDetailData.type,allDetailData.share_title,allDetailData.content)"
+      />
+      <!-- <img src="" class="leftImg">
+        <div class="rightIntros">
+          <p class="rightIntroTitle">棉质休闲圆领T恤(长袖)</p>
+          <p class="rightIntroId">419974</p>
+          <p class="rightIntroPric">￥99.00</p>
+      </div>-->
+      <!-- </div> -->
+      <div class="refresh" @click="startVedio"></div>
+    </div>
+    <div class="vedioIntros">
       <div class="titleBox">
         <div class="titleRow">
           <p class="title">{{ allDetailData.title }}</p>
@@ -24,24 +42,6 @@
           </p>
         </div>
       </div>
-    </div>
-    <div class="vedioPop" v-if="isShowVedioPop">
-      <p class="tuijian">为您推荐</p>
-      <img
-        class="midContent"
-        v-lazy="allDetailData.cover"
-        @click="callAppJump(allDetailData.type,allDetailData.share_title,allDetailData.content)"
-      />
-      <!-- <img src="" class="leftImg">
-        <div class="rightIntros">
-          <p class="rightIntroTitle">棉质休闲圆领T恤(长袖)</p>
-          <p class="rightIntroId">419974</p>
-          <p class="rightIntroPric">￥99.00</p>
-      </div>-->
-      <!-- </div> -->
-      <div class="refresh" @click="startVedio"></div>
-    </div>
-    <div class="vedioIntros">
       <div class="asVedio" v-if="sameVD.length">
         <p class="classTitle">视频同款</p>
         <div class="scrollWrap asContent">
@@ -586,18 +586,24 @@ export default {
   width: 100%;
   background: #fff;
   z-index: 10;
+}
+
+.vedioIntros {
+  margin-top: 275px; /*no*/
+  padding-left: 25px;
+  padding-top: 13px; /*no*/
   .titleBox {
-    padding: 18px 22px 10px 25px; /*no*/
+    padding-right: 22px; /*no*/
     .titleRow {
       display: flex;
       align-content: center;
       justify-content: space-between;
       .title {
         width: 100%; /*no*/
-        font-size: 18px; /*no*/
+        font-size: 18px;
         overflow: hidden;
-        max-height: 38px; /*no*/
-        line-height: 19px; /*no*/
+        max-height: 38px;
+        line-height: 19px;
         font-weight: bold;
       }
     }
@@ -657,11 +663,6 @@ export default {
       }
     }
   }
-}
-.vedioIntros {
-  margin-top: 355px; /*no*/
-  padding-left: 25px;
-  padding-top: 13px; /*no*/
   .classTitle {
     font-size: 16px;
   }
@@ -680,7 +681,7 @@ export default {
     }
   }
   .asVedio {
-    margin-top: 13px;
+    margin-top: 25px;
     .asContent {
       height: 186px;
       .asBox {
