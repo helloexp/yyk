@@ -8,7 +8,7 @@
       <img
         class="midContent"
         v-lazy="allDetailData.cover"
-        @click="callAppJump(allDetailData.type,allDetailData.share_title,allDetailData.content)"
+        @click="callAppJump(allDetailData.type,allDetailData.content,allDetailData.share_title)"
       />
       <!-- <img src="" class="leftImg">
         <div class="rightIntros">
@@ -53,7 +53,7 @@
               v-for="(item, idx) in sameVD"
               :key="idx"
             >
-              <div class="saleOutPop">售罄</div>
+              <div class="saleOutPop" @click="callAppJump(56,item.goods_id,item.keyword)">售罄</div>
               <img
                 class="classImg"
                 v-lazy="{src: item.mfImgUrl, error: item.skuImgUrl}"
@@ -71,42 +71,6 @@
                 <span class="joinShop" v-else></span>
               </p>
             </div>
-            <!-- <span class="scorllItem">
-              <div class="saleOutPop">
-                售罄
-              </div>
-              <img src="" class="classImg">
-              <p class="classTitle">棉质休闲圆领T恤(长袖)</p>
-              <p class="classId">12312</p>
-              <p class="classPrice">
-                <span class="yprice">￥12.00</span>
-                <span class="joinShop"></span>
-              </p>
-            </span>
-            <span class="scorllItem">
-               <div class="saleOutPop">
-                售罄
-              </div>
-              <img src="" class="classImg">
-              <p class="classTitle">棉质休闲圆领T恤(长袖)</p>
-              <p class="classId">12312</p>
-              <p class="classPrice">
-                <span class="yprice">￥12.00</span>
-                <span class="joinShop"></span>
-              </p>
-            </span>
-            <span class="scorllItem">
-              <div class="saleOutPop">
-                售罄
-              </div>
-              <img src="" class="classImg">
-              <p class="classTitle">棉质休闲圆领T恤(长袖)</p>
-              <p class="classId">12312</p>
-              <p class="classPrice">
-                <span class="yprice">￥12.00</span>
-                <span class="joinShop"></span>
-              </p>
-            </span>-->
           </div>
         </div>
       </div>
@@ -190,7 +154,7 @@ export default {
       imgBaseUrl: "",
       imgUrlParams: "",
       userInfo: {},
-      // netType: "",
+      netType: "",
       isAndroid: _utils.isAndroid(),
       // isAndroid: true,
       isIos: _utils.isIos(),
@@ -205,41 +169,35 @@ export default {
       console.warn(`播放状态发生改变`);
       if (val == 0) {
         this.isShowVedioPop = true;
+      }else if(val ==  1)  {
+        if(this.netType == "4g") {
+          this.player.pause();
+          this.showConfrim(
+            "检测到你的网络非WIFI，请确认非WIFI环境是否自动播放视频",
+            "net"
+          );
+        }
       }
+      console.log(val)
     }
-    // netType(val) {
-    //   let that = this;
-    //   if (val == "4g") {
-    //     that.showConfrim(
-    //       "检测到你的网络非WIFI，请确认非WIFI环境是否自动播放视频",
-    //       "net"
-    //     );
-    //   } else if (val == "wifi") {
-    //     that.$refs.confirmToast.hidden();
-    //     console.warn(`wifi,播放视频${val}`)
-    //     that.startVedio();
-    //   } else {
-    //   }
-    // }
   },
   created() {
-    // console.log(process.env.VUE_APP_IMGBASE,'VUE_APP_IMGBASE');
     this.$loading(true);
     this.vedioId = this.$route.query.vedio;
     this.vid = this.$route.query.vid;
     // 不同环境下的图片域名
-    // this.imgBaseUrl = process.env.VUE_APP_IMGBASE;
-    this.imgBaseUrl = "https://www.uniqlo.cn";
+    this.imgBaseUrl = process.env.VUE_APP_IMGBASE;
+    // this.imgBaseUrl = "https://www.uniqlo.cn";
     console.warn(`页面加载时createdsid：${_utils.getCookie("sid")}`);
     if (_utils.getCookie("sid")) {
       sessionStorage.setItem("sid", _utils.getCookie("sid"));
     } else {
       sessionStorage.setItem("sid", "");
     }
+    this.getImgParams();
   },
   mounted() {
     console.warn(`页面加载时mountedsid：${_utils.getCookie("sid")}`);
-    this.getImgParams();
     // 初始化视频组件
     this.initVideo();
     // 获取原生返回的网络状态，根据网络状态控制视频播放
@@ -354,9 +312,9 @@ export default {
         let res = that.dianZan(data);
         if (res) {
           if (that.otherInfo.isLike) {
-            that.otherInfo.likeC++;
-          } else {
             that.otherInfo.likeC--;
+          } else {
+            that.otherInfo.likeC++;
           }
           that.otherInfo.isLike = !that.otherInfo.isLike;
         } else {
@@ -452,6 +410,7 @@ export default {
     getNetType(res) {
       let that = this;
       console.warn(res, "-----网络状态");
+      that.netType = res;
       if (res == "4g") {
         that.showConfrim(
           "检测到你的网络非WIFI，请确认非WIFI环境是否自动播放视频",
@@ -462,7 +421,6 @@ export default {
         that.$nextTick(() => {
           setTimeout(() => {
             that.player.play();
-            that.player.setFullScreen(false);
           }, 1000);
         });
       } else {
@@ -551,7 +509,7 @@ export default {
       try {
         let params = {
           shareImg: that.allDetailData.share_friend_img,
-          shareUrl: "qwe", // h5地址
+          shareUrl: `https://test-event.uniqlo.cn/m/des/watch/#/readBuyDetail?vid=${that.vid}&vedio=${that.vedioId}`, // h5地址
           shareCon: that.allDetailData.share_title,
           shareMini: `activity/pages/videoDetail/videoDetail?vid=${that.vid}&channel=xxx` //TODO小程序地址
         };
