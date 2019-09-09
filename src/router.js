@@ -4,8 +4,7 @@ import readBuyDetail from "./views/readBuy/index.vue";
 import readBuyList from "./views/readBuyList/index.vue";
 Vue.use(Router);
 
-const routes = [
-  {
+const routes = [{
     path: "/",
     name: "readBuyList",
     meta: {
@@ -24,7 +23,7 @@ const routes = [
 ];
 
 export default new Router({
-  mode: 'history',
+  // mode: 'history',
   base: process.env.BASE_URL,
   linkActiveClass: "active",
   routes

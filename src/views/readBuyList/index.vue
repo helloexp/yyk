@@ -77,8 +77,7 @@ export default {
       // 正在请求中不给请求，节流
       if (!that.isLoading) {
         // 改为请求中
-        that.
-         = true;
+        that.isLoading = true;
         // 没有更多数据
         if (that.noMoreVedio) {
           that.isShowLoadMore = false;
