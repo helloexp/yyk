@@ -194,7 +194,6 @@ export default {
     } else {
       sessionStorage.setItem("sid", "");
     }
-    this.getImgParams();
   },
   mounted() {
     console.warn(`页面加载时mountedsid：${_utils.getCookie("sid")}`);
@@ -332,11 +331,12 @@ export default {
       });
     },
     // 视频同款处理
-    handleSameVideoData(list) {
+    async handleSameVideoData(list) {
       let that = this;
       list.sort(function(a, b) {
         return Number(b.sort) - Number(a.sort);
       });
+      await that.getImgParams();
       list.forEach(async (item, idx) => {
         let res = await that.sameVedioData(item.goods_id);
         if (!res) return;

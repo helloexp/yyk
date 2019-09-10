@@ -181,7 +181,7 @@ export default {
   watch: {
     scrollTop(val) {
       let that = this;
-      if (window.screen.availHeight + val == document.body.scrollHeight) {
+      if (window.screen.availHeight + val + 50 >= document.body.scrollHeight) {
         if (!that.noMoreVedio) {
           that.isShowLoadMore = true;
           that.getMoreList();
