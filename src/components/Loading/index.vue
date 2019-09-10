@@ -2,9 +2,7 @@
 <template>
   <transition name="fade">
     <!--loding s-->
-    <div v-if="isShow"
-         ontouchmove="return false;"
-         class="loadingbg">
+    <div v-if="isShow" ontouchmove="return false;" class="loadingbg">
       <div class="loading">
         <div class="loading-rotate lazy"></div>
         <div class="loading_text">努力加载中</div>
@@ -15,66 +13,70 @@
 
 <script>
 export default {
-  data () {
+  data() {
     return {
       isShow: false
-    }
+    };
   }
-}
+};
 </script>
 
 <style lang="less" scoped>
 .loading-rotate {
-    margin: 0 auto;
-    position: relative;
-    width: 30px;
-    height: 30px;
-    -webkit-animation: rotate 1s linear infinite;
-    animation: rotate linear 1s infinite;
-    transform-origin:center center;
-    box-sizing: border-box;
-}       
+  margin: 0 auto;
+  position: relative;
+  width: 30px;
+  height: 30px;
+  -webkit-animation: rotate 1s linear infinite;
+  animation: rotate linear 1s infinite;
+  transform-origin: center center;
+  box-sizing: border-box;
+}
 .loading-rotate:before {
-    content: "";
-    position: absolute;
-    left: 0;  top: 0;
-    width: 100%;  height: 100%;
-    box-sizing: border-box;
-    border: 3px solid transparent;
-    border-top-color: #ddd;
-    border-radius: 50%;
-    z-index: 10;
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  border: 3px solid transparent;
+  border-top-color: #ddd;
+  border-radius: 50%;
+  z-index: 10;
 }
 .loading-rotate:after {
-    content: "";
-    position: absolute;
-    left: 0; top: 0;
-    width: 30px;  height: 30px;
-    border: 3px solid #f2f4f7;
-    box-sizing: border-box;
-    border-radius: 50%;
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 30px;
+  height: 30px;
+  border: 3px solid #f2f4f7;
+  box-sizing: border-box;
+  border-radius: 50%;
 }
 /*旋转位置不停变化*/
 .loading-rotate.lazy {
-    -webkit-animation: rotate-lazy 6s ease-in-out infinite;
-    animation: rotate-lazy ease-in-out 6s infinite;
-}    
-@-webkit-keyframes rotate-lazy{
-    0{
-        -webkit-transform: rotate(0);
-    }
-    25%{
-        -webkit-transform: rotate(450deg);
-    }
-    50%{
-        -webkit-transform: rotate(900deg);
-    }
-    75%{
-        -webkit-transform: rotate(1350deg);
-    }
-    100%{
-        -webkit-transform: rotate(1800deg);
-    }       
+  -webkit-animation: rotate-lazy 6s ease-in-out infinite;
+  animation: rotate-lazy ease-in-out 6s infinite;
+}
+@-webkit-keyframes rotate-lazy {
+  0 {
+    -webkit-transform: rotate(0);
+  }
+  25% {
+    -webkit-transform: rotate(450deg);
+  }
+  50% {
+    -webkit-transform: rotate(900deg);
+  }
+  75% {
+    -webkit-transform: rotate(1350deg);
+  }
+  100% {
+    -webkit-transform: rotate(1800deg);
+  }
 }
 
 .loadingbg {
@@ -84,7 +86,7 @@ export default {
   position: fixed;
   top: 0;
   left: 0;
-  z-index: 9999;
+  z-index: 998;
 }
 .loadingbg .loading {
   position: absolute;

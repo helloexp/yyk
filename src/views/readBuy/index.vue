@@ -158,7 +158,9 @@ export default {
       isAndroid: _utils.isAndroid(),
       // isAndroid: true,
       isIos: _utils.isIos(),
-      userToken: ""
+      userToken: "",
+      netChangeCount: 0,
+      isHandleNetPop: false
     };
   },
   components: {
@@ -169,16 +171,20 @@ export default {
       console.warn(`播放状态发生改变`);
       if (val == 0) {
         this.isShowVedioPop = true;
-      }else if(val ==  1)  {
-        if(this.netType == "4g") {
-          this.player.pause();
-          this.showConfrim(
-            "检测到你的网络非WIFI，请确认非WIFI环境是否自动播放视频",
-            "net"
-          );
+      } else if (val == 1) {
+        if (this.netType == "4g") {
+          if (this.$store.state.isAutoPlay) {
+            this.player.play();
+          } else {
+            this.player.pause();
+            this.showConfrim(
+              "检测到你的网络非WIFI，请确认非WIFI环境是否自动播放视频",
+              "net"
+            );
+          }
         }
       }
-      console.log(val)
+      console.log(val);
     }
   },
   created() {
@@ -196,18 +202,16 @@ export default {
     }
   },
   mounted() {
-    console.warn(`页面加载时mountedsid：${_utils.getCookie("sid")}`);
     // 初始化视频组件
     this.initVideo();
     // 获取原生返回的网络状态，根据网络状态控制视频播放
     this.getReadBuyDetail();
-    // this.$loading(true);
-
     // getUserToken 获取登陆后的用户信息
     window["getUserToken"] = result => {
       this.getUserToken(result);
     };
     window["getNetType"] = result => {
+      this.netChangeCount++;
       this.getNetType(result);
     };
     // 唤醒app开始监听网络
@@ -227,7 +231,6 @@ export default {
         height: "275px"
       });
       that.player.on("playStateChange", function(res) {
-        console.warn("播放状态发生改变");
         that.vedioStatus = res;
       });
     },
@@ -254,6 +257,9 @@ export default {
             that.handleSameVideoData(res.same_list);
           }
           that.$loading(false);
+        } else {
+          that.player.pause();
+          that.$toast("登陆状态过期，请重新登陆");
         }
       } catch (e) {
         console.log(e);
@@ -281,7 +287,6 @@ export default {
     },
     // 点赞
     likeVedio() {
-      // this.$toast(this.vedioId);
       console.warn(`点赞时sid${sessionStorage.getItem("sid")}`);
       let that = this;
       // 判断是否登录,登陆原生返回登陆信息，没登录返回需要登陆信息
@@ -409,21 +414,68 @@ export default {
     // 网络状态
     getNetType(res) {
       let that = this;
-      console.warn(res, "-----网络状态");
+      console.warn(res, "-----网络状态,", that.netChangeCount);
       that.netType = res;
-      if (res == "4g") {
-        that.showConfrim(
-          "检测到你的网络非WIFI，请确认非WIFI环境是否自动播放视频",
-          "net"
-        );
-      } else if (res == "wifi") {
-        that.$refs.confirmToast.hidden();
-        that.$nextTick(() => {
-          setTimeout(() => {
-            that.player.play();
-          }, 1000);
-        });
+      if (that.netChangeCount == 1) {
+        if (res == "4g") {
+          if (that.$store.state.isAutoPlay == null) {
+            that.pauseVedio();
+            that.showConfrim(
+              "检测到你的网络非WIFI，请确认非WIFI环境是否自动播放视频",
+              "net"
+            );
+          } else if (that.$store.state.isAutoPlay) {
+            that.$refs.confirmToast.hidden();
+            that.$nextTick(() => {
+              setTimeout(() => {
+                that.player.play();
+              }, 1000);
+            });
+          } else if (!that.$store.state.isAutoPlay) {
+            that.pauseVedio();
+          }
+        } else if (res == "wifi") {
+          that.$refs.confirmToast.hidden();
+          that.$nextTick(() => {
+            setTimeout(() => {
+              that.player.play();
+            }, 1000);
+          });
+        }
       } else {
+        console.log(that.isHandleNetPop, "ssssssssssss");
+        if (that.isHandleNetPop) return;
+        that.isHandleNetPop = true;
+        if (that.netType == "wifi") {
+          that.isHandleNetPop = false;
+          return;
+        } else {
+          console.log(
+            "是4g：自动播放：" + that.$store.state.isAutoPlay,
+            "视频状态:" + that.vedioStatus
+          );
+          if (!that.$store.state.isAutoPlay) {
+            // 暂停
+            if (that.vedioStatus == 2) {
+              that.isHandleNetPop = false;
+              return;
+            } else if (
+              //非暂停
+              that.vedioStatus == -1 ||
+              that.vedioStatus == 1 ||
+              that.vedioStatus == 3
+            ) {
+              that.player.pause();
+              that.showConfrim(
+                "检测到你的网络非WIFI，请确认非WIFI环境是否自动播放视频",
+                "net2"
+              );
+            }
+          } else {
+            that.isHandleNetPop = false;
+            return;
+          }
+        }
       }
     },
     // 弹窗提示
@@ -440,25 +492,51 @@ export default {
         confirmText: "去登陆",
         data: type
       };
-      if (type == "net") {
-        this.$refs.confirmToast.show(content, netConfig);
-      } else {
-        this.$refs.confirmToast.show(content, zanConfig);
+      switch (type) {
+        case "net":
+          this.$refs.confirmToast.show(content, netConfig);
+          break;
+        case "zan":
+          this.$refs.confirmToast.show(content, zanConfig);
+          break;
+        case "net2":
+          this.$refs.confirmToast.show(content, netConfig);
+          break;
       }
     },
     // 点击弹窗操作处理
     toastType(type, data) {
       let that = this;
-      if (data == "net") {
-        if (type == "clickConfirm") {
-          that.startVedio();
-        }
+      switch (data) {
+        case "net":
+          // 自动播放了记录自动播放状态，播放视频
+          if (type == "clickConfirm") {
+            that.$store.dispatch("autoPlay", true);
+            that.startVedio();
+          } else {
+            that.$store.dispatch("autoPlay", false);
+          }
+          break;
+        case "zan":
+          if (type == "clickConfirm") {
+            that.callAppToken();
+          }
+          break;
+        case "net2":
+          if (type == "clickConfirm") {
+            that.$store.dispatch("autoPlay", true);
+            that.startVedio();
+            that.isHandleNetPop = false;
+          } else {
+            that.$store.dispatch("autoPlay", false);
+            that.isHandleNetPop = false;
+          }
+          break;
       }
-      if (data == "zan") {
-        if (type == "clickConfirm") {
-          that.callAppToken();
-        }
-      }
+    },
+    async getPlayTimes() {
+      let time = await this.player.getCurrentTime();
+      return time;
     },
     // 唤醒app监听网络
     callPhoneApp() {
@@ -487,6 +565,7 @@ export default {
     },
     // 发起跳转原生的页面
     callAppJump(type, content, title) {
+      let times = this.getPlayTimes() || 0;
       try {
         let that = this;
         let params = {
@@ -494,6 +573,8 @@ export default {
           content: content,
           title: title
         };
+        that.$store.dispatch("setPlayTime", times);
+        that.pauseVedio();
         if (this.isIos) {
           window.webkit.messageHandlers.bkPageJump.postMessage(params);
         } else if (this.isAndroid) {
@@ -652,8 +733,7 @@ export default {
           position: relative;
           .saleOutPop {
             display: none;
-            background: #000000;
-            opacity: 0.5;
+            background: rgba(0, 0, 0, 0.5);
             color: white;
             width: 125px;
             height: 125px;
