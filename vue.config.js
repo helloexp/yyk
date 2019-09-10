@@ -1,4 +1,5 @@
 const path = require('path');
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const debug = process.env.NODE_ENV !== 'production';
 const proxyObj = {
   sit: {
@@ -14,6 +15,7 @@ const proxyObj = {
     image: 'https://www.uniqlo.cn'
   },
 }
+
 module.exports = {
   // 设置打包文件相对路径
   publicPath: './',
@@ -50,7 +52,7 @@ module.exports = {
       // 生产环境生产sm文件,会在source下面生成一个webpack文件里面src是vue源码
       config.devtool = 'source-map';
     } else {
-      // 生产环境,抽离公共脚本，样式
+      // 生产环境,抽离公共脚本，样式,删除console
       let optimization = {
         splitChunks: {
           cacheGroups: {
@@ -82,7 +84,17 @@ module.exports = {
               name: 'manifest'
             }
           }
-        }
+        },
+        minimizer: [
+          new UglifyJsPlugin({
+            uglifyOptions: {
+              warnings: false,
+              compress: {
+                pure_funcs: ['console.log', 'console.debug', 'console.warn'] //移除console
+              }
+            }
+          })
+        ]
       }
       Object.assign(config, {
         optimization
