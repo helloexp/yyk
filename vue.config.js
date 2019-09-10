@@ -1,6 +1,7 @@
 const path = require('path');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
-const debug = process.env.NODE_ENV !== 'production';
+const NOT_PRODUCTION = process.env.NODE_ENV !== 'production';
+let BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const proxyObj = {
   sit: {
     api: 'https://test-event.uniqlo.cn/uniqlo_new_cms',
@@ -48,7 +49,7 @@ module.exports = {
     },
   },
   configureWebpack: config => {
-    if (debug) {
+    if (NOT_PRODUCTION) {
       // 生产环境生产sm文件,会在source下面生成一个webpack文件里面src是vue源码
       config.devtool = 'source-map';
     } else {
@@ -100,6 +101,7 @@ module.exports = {
         optimization
       });
     }
+
     Object.assign(config, {
       // 开发生产共同配置
       resolve: {
@@ -131,6 +133,12 @@ module.exports = {
   // 生产环境生产sm文件,会在source下面生成一个webpack文件里面src是vue源码
   productionSourceMap: true,
   chainWebpack: config => {
+    // 生产环境打包查看模块树状图
+    if (!NOT_PRODUCTION) {
+      config
+        .plugin('webpack-bundle-analyzer')
+        .use(require('webpack-bundle-analyzer').BundleAnalyzerPlugin)
+    }
     const types = ['vue-modules', 'vue', 'normal-modules', 'normal']
     types.forEach(type => addStyleResource(config.module.rule('less').oneOf(type))) // 全局引用less文件
   },
