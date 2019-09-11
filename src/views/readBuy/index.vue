@@ -164,7 +164,6 @@ export default {
   },
   watch: {
     vedioStatus(val) {
-      console.warn(`播放状态发生改变`);
       if (val == 0) {
         this.isShowVedioPop = true;
       } else if (val == 1) {
@@ -180,7 +179,7 @@ export default {
           }
         }
       }
-      console.log(val);
+      console.log("播放状态值：", val);
     }
   },
   created() {
@@ -190,7 +189,6 @@ export default {
     // 不同环境下的图片域名
     this.imgBaseUrl = process.env.VUE_APP_IMGBASE;
     // this.imgBaseUrl = "https://www.uniqlo.cn";
-    console.warn(`页面加载时createdsid：${_utils.getCookie("sid")}`);
     if (_utils.getCookie("sid")) {
       sessionStorage.setItem("sid", _utils.getCookie("sid"));
     } else {
@@ -274,7 +272,6 @@ export default {
     // 播放
     startVedio() {
       this.isShowVedioPop = false;
-      console.warn(`播放进来了${this.player}`);
       this.player.play();
     },
     // 暂停
@@ -283,7 +280,6 @@ export default {
     },
     // 点赞
     likeVedio() {
-      console.warn(`点赞时sid${sessionStorage.getItem("sid")}`);
       let that = this;
       // 判断是否登录,登陆原生返回登陆信息，没登录返回需要登陆信息
       if (sessionStorage.getItem("sid")) {
@@ -382,7 +378,6 @@ export default {
       let that = this;
       try {
         let res = await that.$api.readBuy.readBuyLike(data);
-        console.log(res, "ssssss");
         if (res && res.result == 0) {
           return true;
         } else {
@@ -397,7 +392,7 @@ export default {
     */
     // 获取用户登录信息
     getUserToken(res) {
-      console.warn(res, "token------");
+      console.warn("用户登录以后sid：", res);
       if (res) {
         // 登陆了直接存
         sessionStorage.setItem("sid", res);
@@ -410,7 +405,12 @@ export default {
     // 网络状态
     getNetType(res) {
       let that = this;
-      console.warn(res, "-----网络状态,", that.netChangeCount);
+      console.warn(
+        "-----网络状态:",
+        res,
+        "网络监听次数：",
+        that.netChangeCount
+      );
       that.netType = res;
       if (that.netChangeCount == 1) {
         if (res == "4g") {
@@ -438,22 +438,38 @@ export default {
             }, 1000);
           });
         }
+        // 非第一次进入页面时的网络变化
       } else {
-        console.log(that.isHandleNetPop, "ssssssssssss");
+        console.log(
+          "是否有待处理的网络状态：",
+          that.isHandleNetPop,
+          "--跳转到了app原生页面：" + that.$store.state.jumpPause
+        );
         if (that.isHandleNetPop) return;
         that.isHandleNetPop = true;
         if (that.netType == "wifi") {
           that.isHandleNetPop = false;
+          // 跳转到其他页面，回来后继续播放，用户手动触发的暂停回来后不继续播放
+          if (that.$store.state.playtime && that.$store.state.jumpPause) {
+            that.$store.dispatch("setPlayTime", null);
+            that.$store.dispatch("jumpPause", false);
+            that.player.play();
+          }
           return;
         } else {
           console.log(
-            "是4g：自动播放：" + that.$store.state.isAutoPlay,
+            "4g：自动播放：" + that.$store.state.isAutoPlay,
             "视频状态:" + that.vedioStatus
           );
           if (!that.$store.state.isAutoPlay) {
             // 暂停
             if (that.vedioStatus == 2) {
               that.isHandleNetPop = false;
+              if (that.$store.state.playtime && that.$store.state.jumpPause) {
+                that.$store.dispatch("setPlayTime", null);
+                that.$store.dispatch("jumpPause", false);
+                that.player.play();
+              }
               return;
             } else if (
               //非暂停
@@ -536,7 +552,6 @@ export default {
     },
     // 唤醒app监听网络
     callPhoneApp() {
-      // console.warn(`调取原生方法callphoneApp${navigator.userAgent}，22222222`)
       try {
         if (this.isIos) {
           window.webkit.messageHandlers.bkStartListenNet.postMessage("");
@@ -549,6 +564,7 @@ export default {
     },
     // 发起跳转原生登陆请求
     callAppToken() {
+      this.jumpAppOtherPage();
       try {
         if (this.isIos) {
           window.webkit.messageHandlers.bkUserLogin.postMessage("");
@@ -561,7 +577,7 @@ export default {
     },
     // 发起跳转原生的页面
     callAppJump(type, content, title) {
-      let times = this.getPlayTimes() || 0;
+      this.jumpAppOtherPage();
       try {
         let that = this;
         let params = {
@@ -569,8 +585,6 @@ export default {
           content: content,
           title: title
         };
-        that.$store.dispatch("setPlayTime", times);
-        that.pauseVedio();
         if (this.isIos) {
           window.webkit.messageHandlers.bkPageJump.postMessage(params);
         } else if (this.isAndroid) {
@@ -583,6 +597,7 @@ export default {
     // 发起分享请求
     callAppShare() {
       let that = this;
+      that.jumpAppOtherPage();
       try {
         let params = {
           shareImg: that.allDetailData.share_friend_img,
@@ -591,6 +606,7 @@ export default {
           shareMini: `activity/pages/videoDetail/videoDetail?vid=${that.vid}&channel=xxx` //TODO小程序地址
         };
         if (that.isIos) {
+          console.log(params);
           window.webkit.messageHandlers.bkShareWX.postMessage(params);
         } else if (that.isAndroid) {
           window.android.bkShareWX(
@@ -602,6 +618,16 @@ export default {
         }
       } catch (e) {
         console.warn("原生方法调用");
+      }
+    },
+    jumpAppOtherPage() {
+      let that = this;
+      // 播放中状态，暂停播放，打开回退开关，页面回来时继续播放
+      if (that.vedioStatus == 1) {
+        let times = that.getPlayTimes() || 0;
+        that.$store.dispatch("setPlayTime", times);
+        that.$store.dispatch("jumpPause", true);
+        that.pauseVedio();
       }
     }
   }
@@ -748,7 +774,7 @@ export default {
           .classTitle {
             font-size: 12px;
             line-height: 14px;
-            height: 27px;
+            height: 26px;
             width: 125px;
             white-space: pre-wrap;
             overflow: hidden;

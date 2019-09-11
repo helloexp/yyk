@@ -6,7 +6,8 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
     isAutoPlay: null,
-    playtime: null
+    playtime: null,
+    jumpPause: false
   },
   mutations: {
     autoPlay(state, val) {
@@ -14,6 +15,9 @@ export default new Vuex.Store({
     },
     setPlayTime(state, val) {
       state.playtime = val;
+    },
+    jumpPause(state, val) {
+      state.jumpPause = val;
     }
   },
   actions: {
@@ -22,6 +26,9 @@ export default new Vuex.Store({
     },
     setPlayTime(context, val) {
       context.commit("setPlayTime", val)
+    },
+    jumpPause(context, val) {
+      context.commit('jumpPause', val)
     }
   }
 });

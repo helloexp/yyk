@@ -8,7 +8,7 @@
         <div class="swiper-pagination" slot="pagination"></div>
       </swiper>
     </div>
-    <div class="tuijianTitle">
+    <div class="tuijianTitle" v-if="readBuyList.length">
       <div class="tjTitle">为你推荐</div>
       <div class="allReadCount">
         <img src="@@/images/allcount2.png" class="countImg" />
@@ -313,7 +313,7 @@ export default {
       font-size: 12px;
       margin-left: 6px;
     }
-    .countImg{
+    .countImg {
       width: 54px;
       height: 24px;
     }
