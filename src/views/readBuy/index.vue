@@ -10,14 +10,7 @@
         v-lazy="allDetailData.cover"
         @click="callAppJump(allDetailData.type,allDetailData.content,allDetailData.share_title)"
       />
-      <!-- <img src="" class="leftImg">
-        <div class="rightIntros">
-          <p class="rightIntroTitle">棉质休闲圆领T恤(长袖)</p>
-          <p class="rightIntroId">419974</p>
-          <p class="rightIntroPric">￥99.00</p>
-      </div>-->
-      <!-- </div> -->
-      <div class="refresh" @click="startVedio"></div>
+      <img class="refresh" src="@@/images/replay2.png" @click="startVedio" />
     </div>
     <div class="vedioIntros">
       <div class="titleBox">
@@ -29,14 +22,12 @@
             <div class="zanBox" @click="likeVedio()">
               <img v-if="otherInfo.isLike" src="@@/images/collect.png" />
               <img v-else src="@@/images/like.png" />
-              <!-- <span class="zan" :class="{'notLike':otherInfo.isLike}"></span> -->
               <span class="zanCount">{{otherInfo.likeC}}</span>
             </div>
             <span class="line"></span>
             <img class="share" src="@@/images/share2.png" @click="callAppShare" />
           </div>
           <p class="rightRead">
-            <!-- <span class="read"></span> -->
             <img class="read" src="@@/images/look2.png" alt />
             <span class="readCount">{{ otherInfo.watchC }}</span>
           </p>
@@ -46,7 +37,6 @@
         <p class="classTitle">视频同款</p>
         <div class="scrollWrap asContent">
           <div class="scrollBox asBox">
-            <!-- <div class="scorllItem saleOut" v-for="(item, idx) in sameVD" :key="idx"> -->
             <div
               class="scorllItem"
               :class="{'saleOut': item.inactive || item.xiajia || item.shouqin}"
@@ -60,7 +50,6 @@
                 @click="callAppJump(56,item.goods_id,item.keyword)"
               />
               <p class="classTitle">{{item.name}}</p>
-              <!-- <p class="classId">{{item.pnum}}</p> -->
               <p class="classPrice">
                 <span class="yprice">￥{{item.originPrice}}</span>
                 <span
@@ -111,7 +100,7 @@
                 :style="{background:'url(' + _item.img_url + ') no-repeat',
               'background-size':'cover',
               'background-position': 'center 0'}"
-                @click="callAppJump(_item.type,_item.content,_item.title)"
+                @click="callAppJump(_item.type, _item.content, _item.title)"
               ></div>
             </div>
           </div>
@@ -301,7 +290,7 @@ export default {
           like: 1,
           vid: that.vid
         };
-        // islike： 0未点赞 1点赞了,给接口的参数like： 1点赞 2取消点赞
+        // islik:o未点赞 1点赞了,给接口的参数like： 1点赞 2取消点赞
         if (that.otherInfo.isLike) {
           data["like"] = 2;
         }
@@ -399,7 +388,7 @@ export default {
         this.likeVedio();
       } else {
         // 没登录暂时不知道怎么操作
-        that.$toast("登录失败");
+        this.$toast("登录失败");
       }
     },
     // 网络状态
@@ -922,12 +911,15 @@ export default {
     margin-top: 48px; /*no*/
   }
   .midContent {
-    width: 302px;
+    width: 302px; /*no*/
     height: 115px; /*no*/
-    margin-top: 13px; /*no*/
-    margin-left: 35px; /*no*/
     background: #fff;
-    display: flex;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto;
     .leftImg {
       widows: 115px; /*no*/
       height: 115px; /*no*/
@@ -955,7 +947,7 @@ export default {
   .refresh {
     width: 40px; /*no*/
     height: 40px; /*no*/
-    background: url(../../assets/images/replay.png);
+    // background: url(../../assets/images/replay.png);
     position: absolute;
     bottom: 20px;
     right: 20px;
