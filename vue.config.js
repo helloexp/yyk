@@ -2,6 +2,7 @@ const path = require('path');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const NOT_PRODUCTION = process.env.NODE_ENV !== 'production';
 let BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+// 代理服务地址配置
 const proxyObj = {
   sit: {
     api: 'https://test-event.uniqlo.cn/uniqlo_new_cms',
@@ -50,10 +51,10 @@ module.exports = {
   },
   configureWebpack: config => {
     if (NOT_PRODUCTION) {
-      // 生产环境生产sm文件,会在source下面生成一个webpack文件里面src是vue源码
+      // 开发环境生产sm文件,会在source下面生成一个webpack文件里面src是vue源码
       config.devtool = 'source-map';
     } else {
-      // 生产环境,抽离公共脚本，样式,删除console
+      // 生产环境,抽离公共脚本，样式,（生成的文件比开发环境下要多）删除console
       let optimization = {
         splitChunks: {
           cacheGroups: {
@@ -91,7 +92,7 @@ module.exports = {
             uglifyOptions: {
               warnings: false,
               compress: {
-                pure_funcs: ['console.log', 'console.debug', 'console.warn'] //移除console
+                pure_funcs: ['console.log', 'console.debug', 'console.warn']
               }
             }
           })
@@ -127,7 +128,7 @@ module.exports = {
     modules: false,
     // 是否使用css分离插件 ExtractTextPlugin,将样式和脚本分开
     extract: true,
-    // 开启 CSS source maps,生成未被压缩的样式
+    // 开启 CSS source maps,生成未被压缩的样式(可能是和其他配置冲突了，暂时未发现有用)
     sourceMap: true
   },
   // 生产环境生产sm文件,会在source下面生成一个webpack文件里面src是vue源码
@@ -142,6 +143,7 @@ module.exports = {
     const types = ['vue-modules', 'vue', 'normal-modules', 'normal']
     types.forEach(type => addStyleResource(config.module.rule('less').oneOf(type))) // 全局引用less文件
   },
+  // 多线程编译打包
   parallel: require('os').cpus().length > 1,
   lintOnSave: true
 }

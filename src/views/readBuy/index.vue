@@ -27,17 +27,17 @@
         <div class="readRow">
           <div class="controlPannel">
             <div class="zanBox" @click="likeVedio()">
-              <img v-if="otherInfo.isLike" src="@@/images/redheart.png" />
-              <img v-else src="@@/images/blackheart.png" />
+              <img v-if="otherInfo.isLike" src="@@/images/collect.png" />
+              <img v-else src="@@/images/like.png" />
               <!-- <span class="zan" :class="{'notLike':otherInfo.isLike}"></span> -->
               <span class="zanCount">{{otherInfo.likeC}}</span>
             </div>
             <span class="line"></span>
-            <span class="share" @click="callAppShare"></span>
+            <img class="share" src="@@/images/share2.png" @click="callAppShare" />
           </div>
           <p class="rightRead">
             <!-- <span class="read"></span> -->
-            <img src="@@/images/look.png" alt />
+            <img class="read" src="@@/images/look2.png" alt />
             <span class="readCount">{{ otherInfo.watchC }}</span>
           </p>
         </div>
@@ -68,13 +68,13 @@
                   v-if="item.inactive || item.xiajia || item.shouqin"
                   @click="callAppJump(54,item.goods_id,item.keyword)"
                 >找相似</span>
-                <span class="joinShop" v-else></span>
+                <img src="@@/images/cart2.png" class="joinShop" v-else />
               </p>
             </div>
           </div>
         </div>
       </div>
-      <div class="moreVedio" v-if="VDList.length" :class="{ 'firstContent': !sameVD.length }">
+      <div class="moreVedio" v-if="VDList.length">
         <p class="classTitle">更多精彩视频</p>
         <div class="scrollWrap moreContent">
           <div class="scrollBox moreBox">
@@ -91,11 +91,7 @@
           </div>
         </div>
       </div>
-      <div
-        class="moreNew"
-        v-if="moreVD.length"
-        :class="{'firstContent': !sameVD.length && !VDList.length}"
-      >
+      <div class="moreNew" v-if="moreVD.length">
         <p class="classTitle">更多新品</p>
         <div class="newBox">
           <div v-for="(item, idx) in moreVD" :key="idx">
@@ -614,10 +610,9 @@ export default {
 
 <style lang="less">
 @mgLook: "../../assets/images/look.png";
-@mgheart: "../../assets/images/redheart.png";
-@mgheartblack: "../../assets/images/blackheart.png";
-@mgshare: "../../assets/images/share.png";
-@mgShop: "../../assets/images/cart.png";
+@mgheart: "../../assets/images/collect.png";
+@mgheartblack: "../../assets/images/like.png";
+@mgShop: "../../assets/images/cart2.png";
 
 .vedioBox {
   position: fixed;
@@ -633,6 +628,7 @@ export default {
   padding-top: 13px; /*no*/
   .titleBox {
     padding-right: 22px; /*no*/
+    margin-top: 12px;
     .titleRow {
       display: flex;
       align-content: center;
@@ -670,6 +666,9 @@ export default {
           .notLike {
             background: url(@mgheartblack) no-repeat;
           }
+          img {
+            width: 19px;
+          }
         }
         .line {
           width: 1px; /*no*/
@@ -681,7 +680,6 @@ export default {
         .share {
           width: 19px; /*no*/
           height: 19px; /*no*/
-          background: url(@mgshare) no-repeat;
           margin-left: 4px; /*no*/
         }
       }
@@ -691,7 +689,6 @@ export default {
         .read {
           width: 18px; /*no*/
           height: 15px; /*no*/
-          background: url(@mgLook) no-repeat;
         }
         .readCount {
           font-size: 12px; /*no*/
@@ -717,6 +714,7 @@ export default {
       white-space: nowrap;
       overflow-x: auto;
       overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
     }
   }
   .asVedio {
@@ -750,9 +748,14 @@ export default {
           .classTitle {
             font-size: 12px;
             line-height: 14px;
-            height: 28px;
+            height: 27px;
             width: 125px;
             white-space: pre-wrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
           }
           .classId {
             font-size: 12px;
@@ -787,7 +790,6 @@ export default {
               width: 18px; /*no*/
               height: 15px; /*no*/
               margin-right: 5px;
-              background: url(@mgShop) no-repeat;
             }
           }
         }

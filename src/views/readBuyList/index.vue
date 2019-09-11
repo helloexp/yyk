@@ -11,7 +11,7 @@
     <div class="tuijianTitle">
       <div class="tjTitle">为你推荐</div>
       <div class="allReadCount">
-        <img src="@@/images/allcount.png" class="countImg" />
+        <img src="@@/images/allcount2.png" class="countImg" />
         <span class="countIntro">{{ allReadCount | handleAllReadC }}人正在边看边买</span>
       </div>
     </div>
@@ -29,11 +29,11 @@
           <p class="moiveIntros">{{ item.title }}</p>
           <p class="bannelBox">
             <span class="contrlbox">
-              <span class="look"></span>
+              <img class="look" src="@@/images/look2.png" />
               <span class="count">{{ item.video_wnum | handleReadCount }}</span>
             </span>
             <span class="contrlbox">
-              <span class="zan"></span>
+              <img class="zan" src="@@/images/like.png" />
               <span class="count">{{ Number(item.video_lnum) }}</span>
             </span>
           </p>
@@ -273,13 +273,11 @@ export default {
         .zan {
           width: 16px; /*no*/
           height: 16px; /*no*/
-          background: url(@mgheart) no-repeat;
           margin-left: 17px;
         }
         .look {
           width: 16px; /*no*/
           height: 16px; /*no*/
-          background: url(@mgLook) no-repeat;
         }
         .count {
           font-size: 10px;
@@ -314,6 +312,10 @@ export default {
     .countIntro {
       font-size: 12px;
       margin-left: 6px;
+    }
+    .countImg{
+      width: 54px;
+      height: 24px;
     }
   }
 }
