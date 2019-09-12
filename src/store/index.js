@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
-import readBuy from './readBuy/index';
+import readBuy from './modules/readBuy';
 
 
 Vue.use(Vuex);

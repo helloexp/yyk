@@ -2,6 +2,7 @@ import Vue from "vue";
 import App from "./App.vue";
 import router from "./router";
 import store from "./store";
+// import store from "./store/index"
 // 基础样式
 import "./assets/less/base.less";
 // 字体图标
