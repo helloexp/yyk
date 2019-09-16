@@ -12,6 +12,8 @@ import "animate.css";
 // 公共组件挂载
 import toast from './components/Toast'
 import loading from './components/Loading'
+// import tabbar from './components/tabber'
+// Vue.use(tabbar)
 Vue.use(toast)
 Vue.use(loading)
 // axios
@@ -38,9 +40,9 @@ Vue.use(VueLazyload, {
   attempt: 1
 });
 // 移动端调试
-import vconsole from "vconsole";
-let vConsole = new vconsole();
-export default vConsole;
+// import vconsole from "vconsole";
+// let vConsole = new vconsole();
+// export default vConsole;
 
 
 router.beforeEach((to, from, next) => {
