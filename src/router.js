@@ -3,6 +3,7 @@ import Router from "vue-router";
 const Tabbar = () => import('./components/testtabber.vue');
 import readBuyDetail from "./views/readBuy/index.vue";
 import readBuyList from "./views/readBuyList/index.vue";
+import study from "./views/study/index.vue";
 Vue.use(Router);
 
 const routes = [{
@@ -24,6 +25,14 @@ const routes = [{
       title: "边看边买"
     },
     component: readBuyDetail
+  },
+  {
+    path: '/study',
+    name: 'study',
+    meta: {
+      title: "学习ing"
+    },
+    component: study
   }
 ];
 

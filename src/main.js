@@ -44,7 +44,9 @@ Vue.use(VueLazyload, {
 // let vConsole = new vconsole();
 // export default vConsole;
 
-
+// 挂载自定义指令
+import Diectives from './directives/index';
+Vue.use(Diectives);
 router.beforeEach((to, from, next) => {
   /* 路由发生变化修改页面title */
   if (to.meta.title) {
